@@ -6,11 +6,12 @@
 [[Project Description](#project_description)]
 [[Project Planning](#planning)]
 [[Key Findings](#findings)]
-[[Data Dictionary](#dictionary)]
-[[Acquire & Prep](#acquire_and_prep)]
-[[Data Exploration](#explore)]
-[[Statistical Analysis](#stats)]
-[[Modeling](#model)]
+[[Saws Data Dictionary](#sawsdictionary)]
+[[COSA Air Data Dictionary](#airdictionary)]
+[[COSA Flood Data Dictionary](#flooddictionary)]
+[[COSA Sounds Data Dictionary](#sounddictionary)]
+[[COSA Weather Data Dictionary](#weatherdictionary)]
+[[Work Though the Pipeline](#pipeline)]
 [[Conclusion](#conclusion)]
 [[Recreate This Project](#recreate)]
 ___
@@ -24,18 +25,14 @@ ___
   <summary>Click to expand!</summary>
 
 ### Description
-- 
+- Using the SAWS data set we minimized it to only include the medical center zip code (78229). We will be using this focused SAWS data and using it in conjunction with the COSA Medical Center Air/Weather/Flood/Sound data set to see how the these affects water consumption in the area as well as one another. We will also be doing individual analysis on each data set. For the SAWS data set we aim to find the consumption based on the residential water consumption through the year. For the COSA Air Quality we want to see the quality throughout the days and weeks.
 
 ### Goals
-- 
-    
-### Where did you get the data?
-- 
-
-Project Name: ___
-
-explain the project for resume
-    
+- Find out if there is a link between air quality and water consumption in the medical center
+- See if the air quality sensor is beneficial to SA.
+- See water consumption use time analysis.
+- Find peak water consumption times (so in the future what can the city do to combat the peak)
+- Find peak poor air quality times/days (so in the future what can the city do to combat the peak)
 
 </details>
     
@@ -65,17 +62,18 @@ explain the project for resume
         - At least 2.
 - Run statistical analysis:
     - At least 2.
-- Modeling:
-    - Make multiple models.
-    - Pick best model.
-    - Test Data.
-    - Conclude results.
         
-### Hypothesis
-- 
+### Hypothesis/Questions
+- There is a relationship between sound and air quality (louder sound - construction, traffic, etc)
+- The hotter it is the more water consumption there is.
+- What is water consumption like during storms vs sunny days?
+- Are there spikes in air quality at certain times or days?
+- Is air quality and water consumption worse on the weekends?
+- How is the air quality after it floods?
+- What type of weather has the best air quality?
+- As air quality gets worse water consumption goes up.
+- Does air quality influence water consumption?
 
-### Target variable
-- 
 
 </details>
 
@@ -120,7 +118,7 @@ explain the project for resume
     
 </details>
 
-## <a name="dictionary"></a> Data Dictionary
+## <a name="dictionary"></a> Data Dictionaries
 ![dict](URL to photo)
 
 [[Back to top](#top)]
@@ -128,22 +126,105 @@ explain the project for resume
 <details>
   <summary>Click to expand!</summary>
 
-### Data Used
+### SAWS
     
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
-| Attribute | Definition | Data Type |
-| Attribute | Definition | Data Type |
-| Attribute | Definition | Data Type |
-  
+| Record | #	Unique Record Number (used to cross reference SAWS internal dataset) | Data Type |
+| Prefix | Compass direction associated with street name (N, S, E, W, NE, NW, SE, SW or blank) | Data Type |
+| Service Location | Name of street where residential type service account is located | Data Type |
+| Suffix | Type associated with street name (ST, RD, DR, CT, LOOP, PKWY, BLVD… etc.) | Data Type |
+| ZIP Code | 5-digit zip codes associated with service location | Data Type |
+| 17-JAN to 17-DEC | Gallons billed to Customer Account for service location in each month of 2017 | Data Type |
+| 18-JAN to 18-DEC | Gallons billed to Customer Account for service location in each month of 2018 | Data Type |
+| 19-JAN to 19-DEC | Gallons billed to Customer Account for service location in each month of 2019 | Data Type |
+| 20-JAN to 20-DEC | Gallons billed to Customer Account for service location in each month of 2020 | Data Type |
+
+### COSA Air
     
-\*  Indicates the target feature in this Zillow data.
+| Attribute | Definition | Data Type |
+| ----- | ----- | ----- | 
+| DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
+| Sensor_id | Sensor unique identifier | Data Type |
+| Vendor | This field is meant to convey the vendor that owns the snesor | Data Type |
+| SensorModel | This is meant to convey the actual manufacturer model number of the sensor | Data Type |
+| LAT | Latitude of sensor location in decimal format | Data Type |
+| LONG | Longitude of sensor location in decimal format | Data Type |
+| Zone | Recognized pre defined zone where sensor is installed | Data Type |
+| Pm1_0 | Microgram per meter cube of inhalable particles with diameter smaller than 1 Micron | Data Type |
+| Pm2_5 | Microgram per meter cube of inhalable particles with diameter smaller 2.5 Micron | Data Type |
+| Pm10 | Microgram per meter cube of inhalable particles with diameter smaller 10 Micron | Data Type |
+| SO2 | Sulfuric Dioxide concentration in PPM (parts per million) | Data Type |
+| O3 | Ozone concentration in PPM (parts per million) | Data Type |
+| CO | Carbone Monoxide concentration in PPM (parts per million) | Data Type |
+| NO2 | Nitrogen Dioxide concentration in PPM (parts per million) | Data Type |
+| AlertTriggered | A list of measurements that triggered an alert. | Data Type |
+| SensorStatus | Indicates the status of the sensor when the reading was taken. | Data Type |
+
+
+### COSA Flood
+    
+| Attribute | Definition | Data Type |
+| ----- | ----- | ----- | 
+| DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
+| Sensor_id | Sensor unique identifier | Data Type |
+| Vendor | This field is meant to convey the vendor that owns the sensor. | Data Type |
+| SensorModel | This is meant to convey the actual manufacturer model number of the sensor. | Data Type |
+| LAT | Latitude of sensor location in decimal format. | Data Type |
+| LONG | Longitude of sensor location in decimal format. | Data Type |
+| Zone | Recognized pre-defined zone where sensor is installed. | Data Type |
+| Temp(c) | Temperature at sensor in deg C | Data Type |
+| Temp(F) | Temperature at sensor in deg F | Data Type |
+| DistToWL(ft) | Distance from sensor to water level in ft | Data Type |
+| DistToWL(m) | Distance from sensor to water level in m | Data Type |
+| DistToDF(ft) | Distance from sensor to dry floor of river, creek etc. (ft) | Data Type |
+| DistToDF(m) | Distance from sensor to dry floor of river, creek etc. (m) | Data Type |
+| AlertTriggered | Y, N value if sensor supports water level alerts and alert was triggered.   | Data Type |
+| SensorStatus | Indicates the status of the sensor when the reading was taken. | Data Type |
+
+
+### COSA Sound
+    
+| Attribute | Definition | Data Type |
+| ----- | ----- | ----- | 
+| DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
+| Sensor_id | Sensor unique identifier | Data Type |
+| Vendor | This field is meant to convey the vendor that owns the sensor. | Data Type |
+| SensorModel | This is meant to convey the actual manufacturer model number of the sensor. | Data Type |
+| LAT | Latitude of sensor location in decimal format. | Data Type |
+| LONG | Longitude of sensor location in decimal format. | Data Type |
+| Zone | Recognized pre-defined zone where sensor is installed. | Data Type |
+| NoiseLevel(db) | Noise level in decibels (db) | Data Type |
+| AlertTriggered | Y, N value if sensor supports alert levels and alert was triggered. | Data Type |
+| SensorStatus | Indicates the status of the sensor when the reading was taken. | Data Type |
+  
+
+### COSA Weather
+    
+| Attribute | Definition | Data Type |
+| ----- | ----- | ----- | 
+| DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
+| Sensor_id | Sensor unique identifier | Data Type |
+| Vendor | This field is meant to convey the vendor that owns the sensor. | Data Type |
+| SensorModel | This is meant to convey the actual manufacturer model number of the sensor. | Data Type |
+| LAT | Latitude of sensor location in decimal format. | Data Type |
+| LONG | Longitude of sensor location in decimal format. | Data Type |
+| Zone | Recognized pre-defined zone where sensor is installed. | Data Type |
+| Temp(c) | Ambient air temperature in deg C | Data Type |
+| Temp(F) | Ambient air temperature in deg F | Data Type |
+| Humidity(%) | % Relative Humidity (RH) | Data Type |
+| DewPoint(c) | Due point in deg C | Data Type |
+| DewPoint(F) | Due point in deg F | Data Type |
+| Pressure(Pa) | Atmospheric pressure in Pascal (Pa) | Data Type |
+| AlertTriggered | A list of measurements that triggered an alert. | Data Type |
+| SensorStatus | Indicates the status of the sensor when the reading was taken. | Data Type |
+  
 
 ***
 </details>
 
-## <a name="acquire_and_prep"></a> Acquire and Prepare Data
-![acquire_prep](URL to photo)
+## <a name="pipeline"></a> Data Science Pipeline
+![pipeline](URL to photo)
 [[Back to top](#top)]
 
 <details>
@@ -155,34 +236,8 @@ explain the project for resume
 ### Prepare Data
 - 
 
-***
-
-</details>
-
-
-
-## <a name="explore"></a> Exploration
-![dict](URL to photo)
-[[Back to top](#top)]
-
-<details>
-  <summary>Click to expand!</summary>
-    
-- wrangle.py 
-
-### Findings:
+### Exploration Findings:
 - 
-
-***
-
-</details>    
-
-## <a name="stats"></a> Statistical Testing
-![stats](URL to photo)
-[[Back to top](#top)]
-<details>
-  <summary>Click to expand!</summary>
-
 
 ### Stats Test 1:
 - What is the test?
@@ -191,27 +246,10 @@ explain the project for resume
     - 
 - What is being compared?
     - 
-
-#### Hypothesis:
-- The null hypothesis (H<sub>0</sub>) is...
-    - 
-- The alternate hypothesis (H<sub>1</sub>) is ...
-    - 
-
-
-#### Confidence level and alpha value:
-- I established a 95% confidence level
-- alpha = 1 - confidence, therefore alpha is 0.05
-
-#### Results:
 - Reject the null or fail to reject
-- Move forward with Alternative Hypothesis or not 
-
-- Summary:
-    - F score of:
-        - 
-    - P vlaue of:
-        - 
+    - 
+- What was learned:
+    - 
 
 ### Stats Test 2:
 - What is the test?
@@ -220,78 +258,29 @@ explain the project for resume
     - 
 - What is being compared?
     - 
-
-#### Hypothesis:
-- The null hypothesis (H<sub>0</sub>) is...
-    - 
-- The alternate hypothesis (H<sub>1</sub>) is ...
-    - 
-
-
-#### Confidence level and alpha value:
-- I established a 95% confidence level
-- alpha = 1 - confidence, therefore alpha is 0.05
-
-#### Results:
 - Reject the null or fail to reject
-- Move forward with Alternative Hypothesis or not 
+    - 
+- What was learned:
+    - 
+    
+### Stats Test 3:
+- What is the test?
+    - 
+- Why use this test?
+    - 
+- What is being compared?
+    - 
+- Reject the null or fail to reject
+    - 
+- What was learned:
+    - 
 
-- Summary:
-    - F score of:
-        - 
-    - P vlaue of:
-        - 
 
 ***
 ​
     
 </details>    
 
-## <a name="model"></a> Modeling
-![model](URL to photo)
-[[Back to top](#top)]
-<details>
-  <summary>Click to expand!</summary>
-
-Summary of modeling choices...
-        
-### Models and R<sup>2</sup> Values:
-- 
-
-### Baseline Accuracy  
-- 
-    
-### Model
-Model Accuracy:  
-    
-### Model
-Model Accuracy:  
-
-
-## Selecting the Best Model:
-
-- 
-    
-### Use Table below as a template for all Modeling results for easy comparison:
-
-| Model | Accuracy with Train | Accuracy with Validate | Accuracy with Test|
-| ---- | ----| ---- | ---- |
-| Model | Accuracy with Train | Accuracy with Validate | Accuracy with Test|
-| Model | Accuracy with Train | Accuracy with Validate | Accuracy with Test|
-
-
-- Why did I choose this model?
-    - 
-
-## Testing the Model
-
-- Model Testing Results
-     - 
-
-
-***
-
-</details>  
 
 ## <a name="conclusion"></a> Conclusion
 ![conclusion](URL to photo)
