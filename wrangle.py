@@ -38,3 +38,37 @@ def clean_flood(df):
     return df
 
 #-----------------------------------------------------------------------------
+
+# Weather Cleaning
+
+def wrangle_weather():
+    '''
+    This function will drop unneccessary columns, 
+    change datetime to a pandas datetime datatype,
+    and rename columns to be more readable to return
+    a clean dataframe.  
+    '''
+    #read csv and turn into pandas dataframe
+    weather = pd.read_csv('med_center_weather.csv')
+    #drop columns we will not be using
+    weather.drop(columns=[
+    'Sensor_id', 
+    'Vendor', 
+    'SensorModel', 
+    'LAT', 
+    'LONG', 
+    'Zone', 
+    'AlertTriggered', 
+    'SensorStatus'], inplace=True)
+    #change datetime to pandas datetime object
+    weather.DateTime = pd.to_datetime(weather.DateTime)
+    #rename columns to be more readable
+    weather = weather.rename(columns={"DateTime": "datetime", 
+                            "Temp_C": "celsius", 
+                            "Temp_F": "farenheit", 
+                            "Humidity": "humidity",
+                            "DewPoint_C": "dewpoint_celsius",
+                            "DewPoint_F": "dewpoint_farenheit",
+                            "Pressure_Pa": "pressure"})
+    #return clean weather df
+    return weather
