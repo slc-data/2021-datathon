@@ -1,6 +1,5 @@
-# 2021-datathon-readme
 <a name="top"></a>
-![name of photo](url_to_photo)
+![name of photo](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/header.png?raw=true)
 
 ***
 [[Project Description](#project_description)]
@@ -13,8 +12,8 @@
 ___
 
 
-## <a name="project_description"></a> Project Description
-![desc](URL to photo)
+## <a name="project_description"></a> 
+![desc](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/project_description.png?raw=true)
 [[Back to top](#top)]
 
 <details>
@@ -33,8 +32,8 @@ ___
 </details>
     
     
-## <a name="planning"></a> Project Planning
-![plan](URl to photo)
+## <a name="planning"></a>
+![plan](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/project_planning.png?raw=true)
 [[Back to top](#top)]
 
 <details>
@@ -74,8 +73,8 @@ ___
 </details>
 
     
-## <a name="findings"></a> Key Findings
-![find](URL to photo)
+## <a name="findings"></a>
+![find](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/key_findings.png?raw=true)
 
 [[Back to top](#top)]
 
@@ -102,8 +101,8 @@ ___
     
 </details>
 
-## <a name="dictionary"></a> Data Dictionaries
-![dict](URL to photo)
+## <a name="dictionary"></a>
+![dict](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/data_dict.png?raw=true)
 
 [[Back to top](#top)]
 
@@ -165,8 +164,8 @@ ___
 ***
 </details>
 
-## <a name="pipeline"></a> Data Science Pipeline
-![pipeline](URL to photo)
+## <a name="pipeline"></a>
+![pipeline](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/ds_pipeline.png?raw=true)
 [[Back to top](#top)]
 
 <details>
@@ -239,8 +238,8 @@ ___
 </details>    
 
 
-## <a name="conclusion"></a> Conclusion
-![conclusion](URL to photo)
+## <a name="conclusion"></a>
+![conclusion](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/conclusion.png?raw=true)
 [[Back to top](#top)]
 <details>
   <summary>Click to expand!</summary>
@@ -255,8 +254,8 @@ I recommend...
 </details>  
 
 
-## <a name="Recreate This Project"></a> Recreate the Project
-![recreate](URL to Photo)
+## <a name="Recreate This Project"></a>
+![recreate](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/recreate.png?raw=true)
 [[Back to top](#top)]
 
 <details>
