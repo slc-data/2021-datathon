@@ -97,18 +97,6 @@ ___
         - reject of accept null
     
 
-### Modeling:
-- Baseline:
-    - 
-- Models Made:
-    - 
-- Best Model:
-    - 
-- Model testing:
-    - 
-- Performance:
-    - 
-
 ***
 
     
@@ -126,16 +114,9 @@ ___
     
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
-| Record | #	Unique Record Number (used to cross reference SAWS internal dataset) | Data Type |
-| Prefix | Compass direction associated with street name (N, S, E, W, NE, NW, SE, SW or blank) | Data Type |
-| Service Location | Name of street where residential type service account is located | Data Type |
-| Suffix | Type associated with street name (ST, RD, DR, CT, LOOP, PKWY, BLVD… etc.) | Data Type |
-| ZIP Code | 5-digit zip codes associated with service location | Data Type |
-| 17-JAN to 17-DEC | Gallons billed to Customer Account for service location in each month of 2017 | Data Type |
-| 18-JAN to 18-DEC | Gallons billed to Customer Account for service location in each month of 2018 | Data Type |
-| 19-JAN to 19-DEC | Gallons billed to Customer Account for service location in each month of 2019 | Data Type |
-| 20-JAN to 20-DEC | Gallons billed to Customer Account for service location in each month of 2020 | Data Type |
-
+| Record (all column with the exception of location) | #	Unique Record Number (used to cross reference SAWS internal dataset) | Data Type |
+| location | Compass direction associated with street name (N, S, E, W, NE, NW, SE, SW or blank), name of street where residential type service account is located and type associated with street name (ST, RD, DR, CT, LOOP, PKWY, BLVD… etc.) | Data Type |
+    
 ### COSA Air
     
 | Attribute | Definition | Data Type |
@@ -149,23 +130,16 @@ ___
 | CO | Carbone Monoxide concentration in PPM (parts per million) | Data Type |
 | NO2 | Nitrogen Dioxide concentration in PPM (parts per million) | Data Type |
 | AlertTriggered | A list of measurements that triggered an alert. | Data Type |
-| SensorStatus | Indicates the status of the sensor when the reading was taken. | Data Type |
-
 
 ### COSA Flood
     
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
 | DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
-| Temp(c) | Temperature at sensor in deg C | Data Type |
-| Temp(F) | Temperature at sensor in deg F | Data Type |
 | DistToWL(ft) | Distance from sensor to water level in ft | Data Type |
 | DistToWL(m) | Distance from sensor to water level in m | Data Type |
 | DistToDF(ft) | Distance from sensor to dry floor of river, creek etc. (ft) | Data Type |
 | DistToDF(m) | Distance from sensor to dry floor of river, creek etc. (m) | Data Type |
-| AlertTriggered | Y, N value if sensor supports water level alerts and alert was triggered.   | Data Type |
-| SensorStatus | Indicates the status of the sensor when the reading was taken. | Data Type |
-
 
 ### COSA Sound
     
@@ -173,8 +147,6 @@ ___
 | ----- | ----- | ----- | 
 | DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
 | NoiseLevel(db) | Noise level in decibels (db) | Data Type |
-| AlertTriggered | Y, N value if sensor supports alert levels and alert was triggered. | Data Type |
-| SensorStatus | Indicates the status of the sensor when the reading was taken. | Data Type |
   
 
 ### COSA Weather
@@ -188,8 +160,6 @@ ___
 | DewPoint(c) | Due point in deg C | Data Type |
 | DewPoint(F) | Due point in deg F | Data Type |
 | Pressure(Pa) | Atmospheric pressure in Pascal (Pa) | Data Type |
-| AlertTriggered | A list of measurements that triggered an alert. | Data Type |
-| SensorStatus | Indicates the status of the sensor when the reading was taken. | Data Type |
   
 
 ***
@@ -203,10 +173,25 @@ ___
   <summary>Click to expand!</summary>
 
 ### Acquire Data:
-- 
+- Data sets were provided by SAWS and COSA to the 2021 Dataton hosts. All data sets can be found at:
+    - https://sites.google.com/geekdom.com/2021-smartsa-datathon-data-cat/home
     
 ### Prepare Data
-- 
+**SAWS**
+- Limit to only include zipcode 78229
+    - This is the zip code covering San Antonio Medical center
+- Replace all asterisk's with a 0
+- Transpose the data
+- Drop columns
+- Replace nulls with 0
+- Concat Prefix, Suffix, and Service Location into one solid location.
+    
+**COSA**
+- Drop features
+- DateTime to date time format
+- Drop AlertTriggered for all but air quality
+- Replace nulls in AlertTriggered (air quality) with None
+
 
 ### Exploration Findings:
 - 
