@@ -40,13 +40,14 @@ def clean_flood(df):
 #-----------------------------------------------------------------------------
 
 # Weather Cleaning
-'''
-This function will drop unneccessary columns, 
-change datetime to a pandas datetime datatype,
-and rename columns to be more readable to return
-a clean dataframe.  
-'''
+
 def wrangle_weather():
+    '''
+    This function will drop unneccessary columns, 
+    change datetime to a pandas datetime datatype,
+    and rename columns to be more readable to return
+    a clean dataframe.  
+    '''
     #read csv and turn into pandas dataframe
     weather = pd.read_csv('med_center_weather.csv')
     #drop columns we will not be using
