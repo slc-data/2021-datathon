@@ -141,12 +141,6 @@ ___
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
 | DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
-| Sensor_id | Sensor unique identifier | Data Type |
-| Vendor | This field is meant to convey the vendor that owns the snesor | Data Type |
-| SensorModel | This is meant to convey the actual manufacturer model number of the sensor | Data Type |
-| LAT | Latitude of sensor location in decimal format | Data Type |
-| LONG | Longitude of sensor location in decimal format | Data Type |
-| Zone | Recognized pre defined zone where sensor is installed | Data Type |
 | Pm1_0 | Microgram per meter cube of inhalable particles with diameter smaller than 1 Micron | Data Type |
 | Pm2_5 | Microgram per meter cube of inhalable particles with diameter smaller 2.5 Micron | Data Type |
 | Pm10 | Microgram per meter cube of inhalable particles with diameter smaller 10 Micron | Data Type |
@@ -163,12 +157,6 @@ ___
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
 | DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
-| Sensor_id | Sensor unique identifier | Data Type |
-| Vendor | This field is meant to convey the vendor that owns the sensor. | Data Type |
-| SensorModel | This is meant to convey the actual manufacturer model number of the sensor. | Data Type |
-| LAT | Latitude of sensor location in decimal format. | Data Type |
-| LONG | Longitude of sensor location in decimal format. | Data Type |
-| Zone | Recognized pre-defined zone where sensor is installed. | Data Type |
 | Temp(c) | Temperature at sensor in deg C | Data Type |
 | Temp(F) | Temperature at sensor in deg F | Data Type |
 | DistToWL(ft) | Distance from sensor to water level in ft | Data Type |
@@ -184,12 +172,6 @@ ___
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
 | DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
-| Sensor_id | Sensor unique identifier | Data Type |
-| Vendor | This field is meant to convey the vendor that owns the sensor. | Data Type |
-| SensorModel | This is meant to convey the actual manufacturer model number of the sensor. | Data Type |
-| LAT | Latitude of sensor location in decimal format. | Data Type |
-| LONG | Longitude of sensor location in decimal format. | Data Type |
-| Zone | Recognized pre-defined zone where sensor is installed. | Data Type |
 | NoiseLevel(db) | Noise level in decibels (db) | Data Type |
 | AlertTriggered | Y, N value if sensor supports alert levels and alert was triggered. | Data Type |
 | SensorStatus | Indicates the status of the sensor when the reading was taken. | Data Type |
@@ -200,12 +182,6 @@ ___
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
 | DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
-| Sensor_id | Sensor unique identifier | Data Type |
-| Vendor | This field is meant to convey the vendor that owns the sensor. | Data Type |
-| SensorModel | This is meant to convey the actual manufacturer model number of the sensor. | Data Type |
-| LAT | Latitude of sensor location in decimal format. | Data Type |
-| LONG | Longitude of sensor location in decimal format. | Data Type |
-| Zone | Recognized pre-defined zone where sensor is installed. | Data Type |
 | Temp(c) | Ambient air temperature in deg C | Data Type |
 | Temp(F) | Ambient air temperature in deg F | Data Type |
 | Humidity(%) | % Relative Humidity (RH) | Data Type |
