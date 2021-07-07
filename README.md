@@ -3,10 +3,10 @@
 
 ***
 [[Project Description](#project_description)]
-[[Project Planning](#planning)]
+[[Meet the Team](#team)]
+[[Work Though the Pipeline](#pipeline)]
 [[Key Findings](#findings)]
 [[Data Dictionaries](#dictionary)]
-[[Work Though the Pipeline](#pipeline)]
 [[Conclusion](#conclusion)]
 [[Recreate This Project](#recreate)]
 ___
@@ -32,32 +32,31 @@ ___
 </details>
     
     
-## <a name="planning"></a>
-![plan](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/project_planning.png?raw=true)
+## <a name="Meet the Team"></a>
+![team]()
 [[Back to top](#top)]
 
 <details>
   <summary>Click to expand!</summary>
 
-### Projet Outline:
+### Sam Keeler
+![sam](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/team.png?raw=true)
     
-- Acquisiton of data
-- Prepare and clean data with python - Jupyter Labs
-    - Drop
-    - Rename
-    - Create
-    - Dummies
-    - Etc.
-- Explore data:
-    - What are the features?
-    - Null values:
-        - Are the fixable or should they just be deleted.
-    - Categorical or continuous values.
-    - Make graphs that show:
-        - At least 2.
-- Run statistical analysis:
-    - At least 2.
-        
+### Lori Segovia
+    
+    
+### Caitlyn Carney
+
+
+</details>
+
+## <a name="pipeline"></a>
+![pipeline](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/ds_pipeline.png?raw=true)
+[[Back to top](#top)]
+
+<details>
+  <summary>Click to expand!</summary>
+       
 ### Hypothesis/Questions
 - There is a relationship between sound and air quality (louder sound - construction, traffic, etc)
 - The hotter it is the more water consumption there is.
@@ -68,9 +67,60 @@ ___
 - What type of weather has the best air quality?
 - As air quality gets worse water consumption goes up.
 - Does air quality influence water consumption?
+    
+### Acquire Data:
+- Data sets were provided by SAWS and COSA to the 2021 Dataton hosts. All data sets can be found at:
+    - https://sites.google.com/geekdom.com/2021-smartsa-datathon-data-cat/home
+    
+### Prepare Data
+**SAWS**
+- Limit to only include zipcode 78229
+    - This is the zip code covering San Antonio Medical center
+- Replace all asterisk's with a 0
+- Transpose the data
+- Drop columns
+- Replace nulls with 0
+- Concat Prefix, Suffix, and Service Location into one solid location.
+    
+**COSA**
+- Drop features
+- DateTime to date time format
+- Drop AlertTriggered for all but air quality
+- Replace nulls in AlertTriggered (air quality) with None
 
 
-</details>
+### Exploration Findings:
+- 
+
+### Stats Test 1:
+- What is the test?
+    - 
+- Why use this test?
+    - 
+- What is being compared?
+    - 
+- Reject the null or fail to reject
+    - 
+- What was learned:
+    - 
+
+### Stats Test 2:
+- What is the test?
+    - 
+- Why use this test?
+    - 
+- What is being compared?
+    - 
+- Reject the null or fail to reject
+    - 
+- What was learned:
+    - 
+
+
+***
+​
+    
+</details>    
 
     
 ## <a name="findings"></a>
@@ -163,79 +213,6 @@ ___
 
 ***
 </details>
-
-## <a name="pipeline"></a>
-![pipeline](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/ds_pipeline.png?raw=true)
-[[Back to top](#top)]
-
-<details>
-  <summary>Click to expand!</summary>
-
-### Acquire Data:
-- Data sets were provided by SAWS and COSA to the 2021 Dataton hosts. All data sets can be found at:
-    - https://sites.google.com/geekdom.com/2021-smartsa-datathon-data-cat/home
-    
-### Prepare Data
-**SAWS**
-- Limit to only include zipcode 78229
-    - This is the zip code covering San Antonio Medical center
-- Replace all asterisk's with a 0
-- Transpose the data
-- Drop columns
-- Replace nulls with 0
-- Concat Prefix, Suffix, and Service Location into one solid location.
-    
-**COSA**
-- Drop features
-- DateTime to date time format
-- Drop AlertTriggered for all but air quality
-- Replace nulls in AlertTriggered (air quality) with None
-
-
-### Exploration Findings:
-- 
-
-### Stats Test 1:
-- What is the test?
-    - 
-- Why use this test?
-    - 
-- What is being compared?
-    - 
-- Reject the null or fail to reject
-    - 
-- What was learned:
-    - 
-
-### Stats Test 2:
-- What is the test?
-    - 
-- Why use this test?
-    - 
-- What is being compared?
-    - 
-- Reject the null or fail to reject
-    - 
-- What was learned:
-    - 
-    
-### Stats Test 3:
-- What is the test?
-    - 
-- Why use this test?
-    - 
-- What is being compared?
-    - 
-- Reject the null or fail to reject
-    - 
-- What was learned:
-    - 
-
-
-***
-​
-    
-</details>    
 
 
 ## <a name="conclusion"></a>
