@@ -17,6 +17,8 @@ def clean_air():
                             'SensorStatus', 'Vendor'])
     # replace nulls in ALertTriggered to None
     air.fillna("None", inplace = True)
+    # replace -999 with 0
+    air = air.replace(to_replace=-999, value=0)
     # set to date time format
     air.DateTime = pd.to_datetime(air.DateTime)
     # rename features
