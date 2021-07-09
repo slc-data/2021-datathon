@@ -12,83 +12,6 @@ from sklearn.preprocessing import MinMaxScaler
 #-----------------------------------------------------------------------------
 
 # Air Quality Cleaning
-def make_CO_AQI(air):
-    '''makes aqi for each individual CO reading
-    makes df to hold each days CO average reading
-    merges new df to existing df
-    creates AQI for each days average'''
-    # make AQI for each individual CO
-    air['AQI_CO'] = pd.cut(air.CO, 
-                            bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
-                            labels = ['Good', 'Moderate', 
-                                      'Unhealthy for Sensitive Groups', "Unhealthy", 
-                                      "Very Unhealthy", 'Hazardous'])
-    # create df to hold average for CO each day
-    CO_24hr = air.groupby('dates', as_index=False)['CO'].mean()
-    # rename columns
-    CO_24hr = CO_24hr.rename(columns={'CO':'CO_24hr'})
-    # merge this df to main df
-    air = air.merge(CO_24hr, on = 'dates', how ='left')
-    # make AQI for the average each day
-    air['AQI_CO_24hr'] = pd.cut(air.CO_24hr, 
-                                bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
-                                labels = ['Good', 'Moderate', 
-                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
-                                          "Very Unhealthy", 'Hazardous'])
-    # return
-    return air
-
-def make_pm25_AQI(air):
-    '''makes aqi for each individual PM2.5 reading
-    makes df to hold each days PM2.5 average reading
-    merges new df to existing df
-    creates AQI for each days average'''
-    # make AQI for each individual Pm2_5
-    air['AQI_pm2_5'] = pd.cut(air.Pm2_5, 
-                                bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
-                                labels = ['Good', 'Moderate', 
-                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
-                                          "Very Unhealthy", 'Hazardous'])
-    # create df to hold average for Pm2_5 each day
-    pm_25_24hr = air.groupby('dates', as_index=False)['Pm2_5'].mean()
-    # rename columns
-    pm_25_24hr = pm_25_24hr.rename(columns={'Pm2_5':'Pm_25_24hr'})
-    # merge this df to main df
-    air = air.merge(pm_25_24hr, on = 'dates', how ='left')
-    # make AQI for the average each day
-    air['AQI_pm_25_24hr'] = pd.cut(air.Pm_25_24hr, 
-                                bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
-                                labels = ['Good', 'Moderate', 
-                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
-                                          "Very Unhealthy", 'Hazardous'])
-    return air
-
-def make_pm10_AQI(air):
-    '''makes aqi for each individual PM2.5 reading
-    makes df to hold each days PM2.5 average reading
-    merges new df to existing df
-    creates AQI for each days average'''
-    # make AQI for each individual Pm10
-    air['AQI_pm10'] = pd.cut(air.Pm10, 
-                                bins = [-1,55,154,255,355,425,4000],
-                                labels = ['Good', 'Moderate', 
-                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
-                                          "Very Unhealthy", 'Hazardous'])
-    # create df to hold average for Pm10 each day
-    pm_10_24hr = air.groupby('dates', as_index=False)['Pm10'].mean()
-    # rename columns
-    pm_10_24hr = pm_10_24hr.rename(columns={'Pm10':'Pm_10_24hr'})
-    # merge this df to main df
-    air = air.merge(pm_10_24hr, on = 'dates', how ='left')
-    # make AQI for the average each day
-    air['AQI_pm10_24hr'] = pd.cut(air.Pm_10_24hr, 
-                                bins = [-1,55,154,255,355,425,4000],
-                                labels = ['Good', 'Moderate', 
-                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
-                                          "Very Unhealthy", 'Hazardous'])
-    return air
-    
-
 def clean_air():
     '''Drops unneeded columns from the air quality df
     then handles the nulls in alert triggered column
@@ -104,44 +27,49 @@ def clean_air():
     # set to date time format
     air.DateTime = pd.to_datetime(air.DateTime)
     # rename features
-    air = air.rename(columns={"DateTime": "datetime", "AlertTriggered":"alert_triggered"})
-    # create new features
+    air = air.rename(columns={"DateTime": "datetime",
+                              "AlertTriggered":"alert_triggered"})
+    air = air.replace(to_replace=-999, value=0)
+    # create time series features
     air['dates'] = pd.to_datetime(air['datetime']).dt.date
     air['time'] = pd.to_datetime(air['datetime']).dt.time
     air['hour'] = pd.to_datetime(air['datetime']).dt.hour
     air['weekday'] = pd.to_datetime(air['datetime']).dt.weekday
-    # call other cleaning funcitons
-    air = make_CO_AQI(air)
-    air = make_pm25_AQI(air)
-    air = make_pm10_AQI(air)
+    # make all CO bins
+    air['AQI_CO'] = pd.cut(air.CO, 
+                            bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                            labels = ['Good', 'Moderate', 
+                                      'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                      "Very Unhealthy", 'Hazardous'])
     
+    CO_24hr = air.groupby('dates', as_index=False)['CO'].mean()
+    CO_24hr = CO_24hr.rename(columns={'CO':'CO_24hr'})
+    air = air.merge(CO_24hr, on = 'dates', how ='left')
+    air['AQI_CO_24hr'] = pd.cut(air.CO_24hr, 
+                                bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    
+    pm_25_24hr = air.groupby('dates', as_index=False)['Pm2_5'].mean()
+    pm_25_24hr = pm_25_24hr.rename(columns={'Pm2_5':'Pm_25_24hr'})
+    air = air.merge(pm_25_24hr, on = 'dates', how ='left')
+    air['AQI_pm_25_24hr'] = pd.cut(air.Pm_25_24hr, 
+                                bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    
+    pm_10_24hr = air.groupby('dates', as_index=False)['Pm10'].mean()
+    pm_10_24hr = pm_10_24hr.rename(columns={'Pm10':'Pm_10_24hr'})
+    air = air.merge(pm_10_24hr, on = 'dates', how ='left')
+    air['AQI_pm10_24hr'] = pd.cut(air.Pm_10_24hr, 
+                                bins = [-1,55,154,255,355,425,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
     # return new df
     return air
-#-----------------------------------------------------------------------------
-
-# Flood Cleaning
-def clean_flood():
-    '''Drops unneeded columns from the med center flooding df
-    Makes sure DateTime is in DateTime format'''
-    # read csv
-    flood = pd.read_csv('med_center_flood.csv')
-    # drop the colums
-    flood = flood.drop(columns=['LAT', 'LONG', 'Zone', 
-                          'Sensor_id', 'SensorModel', 
-                          'SensorStatus', 'AlertTriggered', 
-                          'Temp_C', 'Temp_F', 'Vendor'])
-    # Set to date time format
-    flood.DateTime = pd.to_datetime(flood.DateTime)
-    flood = flood.rename(columns={"DateTime": "datetime", 
-                        "DistToWL_ft": "sensor_to_water_feet", 
-                        "DistToWL_m": "sensor_to_water_meters", 
-                        "DistToDF_ft": "sensor_to_ground_feet",
-                        "DistToDF_m": "sensor_to_ground_meters"})
-    # create new features for flood depth
-    flood['flood_depth_feet'] = flood.sensor_to_ground_feet - flood.sensor_to_water_feet
-    flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters
-    # return new df
-    return flood
 
 #-----------------------------------------------------------------------------
 
@@ -255,7 +183,7 @@ def wrangle_sound():
     # Converts to datetime
     df['DateTime'] = pd.to_datetime(df.DateTime)
     # make noise level feature
-    sound['noise_level'] = pd.cut(sound.NoiseLevel_db, 
+    df['noise_level'] = pd.cut(df.NoiseLevel_db, 
                                 bins = [-1,46,66,81,101,4000],
                                 labels = ['Normal', 'Moderate', 
                                           'Loud', "Very Loud", 
