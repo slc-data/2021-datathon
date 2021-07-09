@@ -241,7 +241,6 @@ def clean_saws(saws_df):
 #-----------------------------------------------------------------------------
 
 # Sound Cleaning
-
 def wrangle_sound():
     '''
     This function drops unnecessary columns and
@@ -255,6 +254,12 @@ def wrangle_sound():
                             'LAT', 'SensorModel', 'Vendor', 'Sensor_id'])
     # Converts to datetime
     df['DateTime'] = pd.to_datetime(df.DateTime)
+    # make noise level feature
+    sound['noise_level'] = pd.cut(sound.NoiseLevel_db, 
+                                bins = [-1,46,66,81,101,4000],
+                                labels = ['Normal', 'Moderate', 
+                                          'Loud', "Very Loud", 
+                                          "Extremely Loud"])
     return df
 
 #-----------------------------------------------------------------------------
