@@ -4,6 +4,82 @@ import numpy as np
 #-----------------------------------------------------------------------------
 
 # Air Quality Cleaning
+def make_CO_AQI(air):
+    '''makes aqi for each individual CO reading
+    makes df to hold each days CO average reading
+    merges new df to existing df
+    creates AQI for each days average'''
+    # make AQI for each individual CO
+    air['AQI_CO'] = pd.cut(air.CO, 
+                            bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                            labels = ['Good', 'Moderate', 
+                                      'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                      "Very Unhealthy", 'Hazardous'])
+    # create df to hold average for CO each day
+    CO_24hr = air.groupby('dates', as_index=False)['CO'].mean()
+    # rename columns
+    CO_24hr = CO_24hr.rename(columns={'CO':'CO_24hr'})
+    # merge this df to main df
+    air = air.merge(CO_24hr, on = 'dates', how ='left')
+    # make AQI for the average each day
+    air['AQI_CO_24hr'] = pd.cut(air.CO_24hr, 
+                                bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    # return
+    return air
+
+def make_pm25_AQI(air):
+    '''makes aqi for each individual PM2.5 reading
+    makes df to hold each days PM2.5 average reading
+    merges new df to existing df
+    creates AQI for each days average'''
+    # make AQI for each individual Pm2_5
+    air['AQI_pm2_5'] = pd.cut(air.Pm2_5, 
+                                bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    # create df to hold average for Pm2_5 each day
+    pm_25_24hr = air.groupby('dates', as_index=False)['Pm2_5'].mean()
+    # rename columns
+    pm_25_24hr = pm_25_24hr.rename(columns={'Pm2_5':'Pm_25_24hr'})
+    # merge this df to main df
+    air = air.merge(pm_25_24hr, on = 'dates', how ='left')
+    # make AQI for the average each day
+    air['AQI_pm_25_24hr'] = pd.cut(air.Pm_25_24hr, 
+                                bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    return air
+
+def make_pm10_AQI(air):
+    '''makes aqi for each individual PM2.5 reading
+    makes df to hold each days PM2.5 average reading
+    merges new df to existing df
+    creates AQI for each days average'''
+    # make AQI for each individual Pm10
+    air['AQI_pm10'] = pd.cut(air.Pm10, 
+                                bins = [-1,55,154,255,355,425,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    # create df to hold average for Pm10 each day
+    pm_10_24hr = air.groupby('dates', as_index=False)['Pm10'].mean()
+    # rename columns
+    pm_10_24hr = pm_10_24hr.rename(columns={'Pm10':'Pm_10_24hr'})
+    # merge this df to main df
+    air = air.merge(pm_10_24hr, on = 'dates', how ='left')
+    # make AQI for the average each day
+    air['AQI_pm10_24hr'] = pd.cut(air.Pm_10_24hr, 
+                                bins = [-1,55,154,255,355,425,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    return air
+    
 
 def clean_air():
     '''Drops unneeded columns from the air quality df
@@ -17,13 +93,20 @@ def clean_air():
                             'SensorStatus', 'Vendor'])
     # replace nulls in ALertTriggered to None
     air.fillna("None", inplace = True)
-    # replace -999 with 0
-    air = air.replace(to_replace=-999, value=0)
     # set to date time format
     air.DateTime = pd.to_datetime(air.DateTime)
     # rename features
-    air = air.rename(columns={"DateTime": "datetime",
-                              "AlertTriggered":"alert_triggered"})
+    air = air.rename(columns={"DateTime": "datetime", "AlertTriggered":"alert_triggered"})
+    # create new features
+    air['dates'] = pd.to_datetime(air['datetime']).dt.date
+    air['time'] = pd.to_datetime(air['datetime']).dt.time
+    air['hour'] = pd.to_datetime(air['datetime']).dt.hour
+    air['weekday'] = pd.to_datetime(air['datetime']).dt.weekday
+    # call other cleaning funcitons
+    air = make_CO_AQI(air)
+    air = make_pm25_AQI(air)
+    air = make_pm10_AQI(air)
+    
     # return new df
     return air
 #-----------------------------------------------------------------------------
@@ -88,7 +171,7 @@ def wrangle_weather():
 
 #-----------------------------------------------------------------------------
 
-# Cleaning SAWS
+# Wrangle SAWS
 
 def wrangle_saws():
     '''
@@ -113,8 +196,37 @@ def wrangle_saws():
     df = df.set_index('Record #')
     # Transposing the data
     df = df.T
+    # Remove any column that has more than 8 NaN values
+    df = df.dropna(thresh=len(df) - 8, axis=1)
     return df
 
+#-----------------------------------------------------------------------------
+
+# Cleaning saws for analysis
+
+def clean_saws(saws_df):
+    '''
+    This function converts index to datetime object,
+    makes columns into strings instead of integers,
+    replace '*' with zeroes, converts data into integers,
+    and fills any NaNs with the average for that column
+    '''
+    # Drops the location row as it messes with calculation, can be added back later
+    saws_df = saws_df.drop(['location'])
+    # Fix formatting of datetime row
+    saws_df.index = '20' + saws_df.index.str[0:2] + '-' + saws_df.index.str[3:] + '-' + '01'
+    # Converting to a datetime object
+    saws_df.index = pd.to_datetime(saws_df.index)
+    # Converts column names to strings
+    saws_df.columns = saws_df.columns.astype(str)
+    # Replaces asterisks with stars
+    saws_df = saws_df.replace('*', 0)
+    # Changes data in the dataframe into integers
+    saws_df = saws_df.apply(pd.to_numeric)
+    # Replaces NaN values with average of that column
+    saws_df = saws_df.fillna(saws_df.mean())
+    return saws_df
+    
 #-----------------------------------------------------------------------------
 
 # Sound Cleaning
