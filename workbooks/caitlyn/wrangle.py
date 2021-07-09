@@ -1,6 +1,14 @@
 import pandas as pd
 import numpy as np
 
+# turn off pink warning boxes
+import warnings
+warnings.filterwarnings("ignore")
+
+import sklearn
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 #-----------------------------------------------------------------------------
 
 # Air Quality Cleaning
@@ -112,7 +120,6 @@ def clean_air():
 #-----------------------------------------------------------------------------
 
 # Flood Cleaning
-
 def clean_flood():
     '''Drops unneeded columns from the med center flooding df
     Makes sure DateTime is in DateTime format'''
@@ -126,10 +133,13 @@ def clean_flood():
     # Set to date time format
     flood.DateTime = pd.to_datetime(flood.DateTime)
     flood = flood.rename(columns={"DateTime": "datetime", 
-                        "DistToWL_ft": "water_level_feet", 
-                        "DistToWL_m": "water_level_meters", 
-                        "DistToDF_ft": "flood_width_feet",
-                        "DistToDF_m": "flood_width_meters"})
+                        "DistToWL_ft": "sensor_to_water_feet", 
+                        "DistToWL_m": "sensor_to_water_meters", 
+                        "DistToDF_ft": "sensor_to_ground_feet",
+                        "DistToDF_m": "sensor_to_ground_meters"})
+    # create new features for flood depth
+    flood['flood_depth_feet'] = flood.sensor_to_ground_feet - flood.sensor_to_water_feet
+    flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters
     # return new df
     return flood
 
@@ -249,7 +259,7 @@ def wrangle_sound():
 #-----------------------------------------------------------------------------
 
 # Split the Data into Tain, Test, and Validate.
-def split_game_sales(df):
+def split_data(df):
     '''This fuction takes in a df 
     splits into train, test, validate
     return: three pandas dataframes: train, validate, test
