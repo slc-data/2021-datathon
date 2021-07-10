@@ -82,6 +82,32 @@ def clean_air():
     return air
 #-----------------------------------------------------------------------------
 
+# Flood Cleaning
+def clean_flood():
+    '''Drops unneeded columns from the med center flooding df
+    Makes sure DateTime is in DateTime format'''
+    # read csv
+    flood = pd.read_csv('med_center_flood.csv')
+    # drop the colums
+    flood = flood.drop(columns=['LAT', 'LONG', 'Zone', 
+                          'Sensor_id', 'SensorModel', 
+                          'SensorStatus', 'AlertTriggered', 
+                          'Temp_C', 'Temp_F', 'Vendor'])
+    # Set to date time format
+    flood.DateTime = pd.to_datetime(flood.DateTime)
+    flood = flood.rename(columns={"DateTime": "datetime", 
+                        "DistToWL_ft": "sensor_to_water_feet", 
+                        "DistToWL_m": "sensor_to_water_meters", 
+                        "DistToDF_ft": "sensor_to_ground_feet",
+                        "DistToDF_m": "sensor_to_ground_meters"})
+    # create new features for flood depth
+    flood['flood_depth_feet'] = flood.sensor_to_ground_feet - flood.sensor_to_water_feet
+    flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters
+    # return new df
+    return flood
+
+#-----------------------------------------------------------------------------
+
 # Weather Cleaning
 
 def wrangle_weather():
