@@ -84,6 +84,7 @@ ___
     
 **COSA**
 - Drop features
+- Create new features through all data sets
 - DateTime to date time format
 - Drop AlertTriggered for all but air quality
 - Replace nulls in AlertTriggered (air quality) with None
