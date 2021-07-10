@@ -51,6 +51,11 @@ def clean_air():
                                           'Unhealthy for Sensitive Groups', "Unhealthy", 
                                           "Very Unhealthy", 'Hazardous'])
     
+    air['AQI_pm2_5'] = pd.cut(air.Pm2_5, 
+                                bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
     pm_25_24hr = air.groupby('dates', as_index=False)['Pm2_5'].mean()
     pm_25_24hr = pm_25_24hr.rename(columns={'Pm2_5':'Pm_25_24hr'})
     air = air.merge(pm_25_24hr, on = 'dates', how ='left')
@@ -60,6 +65,11 @@ def clean_air():
                                           'Unhealthy for Sensitive Groups', "Unhealthy", 
                                           "Very Unhealthy", 'Hazardous'])
     
+    air['AQI_pm10'] = pd.cut(air.Pm10, 
+                                bins = [-1,55,154,255,355,425,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
     pm_10_24hr = air.groupby('dates', as_index=False)['Pm10'].mean()
     pm_10_24hr = pm_10_24hr.rename(columns={'Pm10':'Pm_10_24hr'})
     air = air.merge(pm_10_24hr, on = 'dates', how ='left')
@@ -70,7 +80,6 @@ def clean_air():
                                           "Very Unhealthy", 'Hazardous'])
     # return new df
     return air
-
 #-----------------------------------------------------------------------------
 
 # Weather Cleaning
