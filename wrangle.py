@@ -294,3 +294,51 @@ def scale_my_data(train, validate, test):
     return train_scaled, validate_scaled, test_scaled
 
 #-----------------------------------------------------------------------------
+
+# Daily averages and more for all COSA sataframes
+
+def full_daily_COSA_dataframe():
+    
+    '''
+    This function takes in all COSA dataframes,
+    averages them by day, then joins them all together
+    using the day as a primary key
+    '''
+
+    # Pulls sound CSV and sets datetime as index, then orders it
+    sound_df = wrangle_sound()
+    sound_df = sound_df.set_index('DateTime')
+    sound_df = sound_df.sort_index()
+    # Pulls flood CSV and sets datetime as index
+    flood_df = clean_flood()
+    flood_df = flood_df.set_index('datetime')
+    # Pulls weather CSV
+    weather_df = wrangle_weather()
+    # Pulls air CSV, sets datetime column to datetime object, sets it as an index, then sorts it
+    air_df = clean_air()
+    air_df.datetime = pd.to_datetime(air_df.datetime)
+    air_df = air_df.set_index('datetime')
+    air_df = air_df.sort_index()
+    # Resamples each dataframe by the day using mean, and drops unnecessary columns from air_df
+    weather_day_df = weather_df.resample('D', on='datetime').mean()
+    flood_day_df = flood_df.resample('D').mean()
+    sound_day_df = sound_df.resample('D').mean()
+    air_day_df = air_df.resample('D').mean().drop(columns = ['hour', 'weekday', 'CO_24hr', 'Pm_25_24hr', 'Pm_10_24hr', 'SO2', 'O3', 'NO2'])
+    # Creating series for each pollutant
+    air2_5 = air_df.drop(air_df.columns.difference(['Pm2_5', 'AQI_pm2_5']), 1)
+    air10 = air_df.drop(air_df.columns.difference(['Pm10', 'AQI_pm10']), 1)
+    airCO = air_df.drop(air_df.columns.difference(['CO', 'AQI_CO']), 1)
+    # Pull most hazardous levels of pollution for each day
+    series2_5 = air2_5.resample('D').max().rename(columns = {'AQI_pm2_5': 'most_hazardous_pm2.5_level'})['most_hazardous_pm2.5_level']
+    series10 = air10.resample('D').max().rename(columns = {'AQI_pm10': 'most_hazardous_pm10_level'})['most_hazardous_pm10_level']
+    seriesCO = airCO.resample('D').max().rename(columns = {'AQI_CO': 'most_hazardous_CO_level'})['most_hazardous_CO_level']
+    # Joins the series together in a dataframe
+    hazards = pd.DataFrame(series2_5).join(series10).join(seriesCO)
+    # Joins the resampled dataframes together
+    df = weather_day_df.join(air_day_df).join(hazards).join(sound_day_df).join(flood_day_df)
+    # Rounds numbers in specific columns
+    df = df.round({'celsius': 2, 'farenheit': 2, 'humidity': 2, 'dewpoint_celsius': 2, 'dewpoint_farenheit': 2,
+          'pressure': 2, 'NoiseLevel_db': 2, 'sensor_to_water_feet': 2, 'sensor_to_water_meters': 2,
+          'sensor_to_ground_feet': 2, 'sensor_to_ground_meters': 2, 'flood_depth_feet': 2,
+          'flood_depth_meters': 2})
+    return df
