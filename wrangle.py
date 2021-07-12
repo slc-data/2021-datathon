@@ -111,6 +111,7 @@ def clean_flood():
 #-----------------------------------------------------------------------------
 
 # Weather Cleaning
+# Weather Cleaning
 def wrangle_weather():
     '''
     This function will drop unneccessary columns, 
@@ -130,7 +131,7 @@ def wrangle_weather():
     # set sa weather index
     sa_weather = sa_weather.set_index('DateTime')
     # drop old datetime
-    sa_weather = sa_weather.drop(columns=['Date_Time'])
+    sa_weather = sa_weather.drop(columns=['Date_Time', 'Temp'])
     #drop columns we will not be using
     weather.drop(columns=[
     'Sensor_id', 
