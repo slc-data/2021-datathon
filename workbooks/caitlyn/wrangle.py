@@ -109,7 +109,6 @@ def clean_flood():
 #-----------------------------------------------------------------------------
 
 # Weather Cleaning
-
 def wrangle_weather():
     '''
     This function will drop unneccessary columns, 
@@ -119,6 +118,17 @@ def wrangle_weather():
     '''
     #read csv and turn into pandas dataframe
     weather = pd.read_csv('med_center_weather.csv')
+    sa_weather = pd.read_csv('SA_weather.csv')
+    # concat sa date and time
+    sa_weather['Date_Time'] = sa_weather['Date'] + ' ' + sa_weather['Time']
+    # put into date time format
+    sa_weather.Date_Time = pd.to_datetime(sa_weather.Date_Time)
+    # round to nearest hour
+    sa_weather['DateTime'] = sa_weather['Date_Time'].dt.round('60min')
+    # set sa weather index
+    sa_weather = sa_weather.set_index('DateTime')
+    # drop old datetime
+    sa_weather = sa_weather.drop(columns=['Date_Time'])
     #drop columns we will not be using
     weather.drop(columns=[
     'Sensor_id', 
@@ -129,8 +139,6 @@ def wrangle_weather():
     'Zone', 
     'AlertTriggered', 
     'SensorStatus'], inplace=True)
-    #change datetime to pandas datetime object
-    weather.DateTime = pd.to_datetime(weather.DateTime)
     #rename columns to be more readable
     weather = weather.rename(columns={"DateTime": "datetime", 
                             "Temp_C": "celsius", 
@@ -139,6 +147,18 @@ def wrangle_weather():
                             "DewPoint_C": "dewpoint_celsius",
                             "DewPoint_F": "dewpoint_farenheit",
                             "Pressure_Pa": "pressure"})
+    #change datetime to pandas datetime object
+    weather.datetime = pd.to_datetime(weather.datetime)
+    # round to hour
+    weather['DateTime'] = weather['datetime'].dt.round('60min')
+    # set index
+    weather = weather.set_index('DateTime')
+    # join the 2 df's
+    weather = weather.join(sa_weather, how='right')
+    # repalce -999
+    weather = weather.replace(to_replace=-999, value=0)
+    # drop nulls
+    weather.dropna(inplace = True)
     #return clean weather df
     return weather
 
