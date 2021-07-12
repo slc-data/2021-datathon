@@ -80,9 +80,11 @@ def clean_air():
                                           "Very Unhealthy", 'Hazardous'])
     # return new df
     return air
+
 #-----------------------------------------------------------------------------
 
 # Flood Cleaning
+
 def clean_flood():
     '''Drops unneeded columns from the med center flooding df
     Makes sure DateTime is in DateTime format'''
@@ -165,33 +167,28 @@ def wrangle_weather():
 #-----------------------------------------------------------------------------
 
 # Wrangle SAWS
-
 def wrangle_saws():
-    '''
-    This function will drop unnecessary columns, 
+    '''This function will drop unnecessary columns, 
     create a 'location' using data acquired from 
-    other columns, and transpose the data so that each column 
-    is an individual property, with rows that are dates,
-    and a final row that specifies the area.
-    '''
+    other columns, and melt the data to make month year column'''
     # Reads the csv
-    df = pd.read_csv('med_center_saws.csv', encoding = "utf-8")
+    saws = pd.read_csv('med_center_saws.csv')
     # Removes NaN values from 'Prefix' and 'Suffix' column for concatenation in 'location'
-    df['Prefix'] = df.Prefix.fillna(value = '')
-    df['Suffix'] = df.Suffix.fillna(value = '')
+    saws['Prefix'] = saws.Prefix.fillna(value = '')
+    saws['Suffix'] = saws.Suffix.fillna(value = '')
     # Concatenating columns together for specific location
-    df['location'] = df['Prefix'] + ' ' + df['Service Location'] + ' ' + df['Suffix']
+    saws['location'] = saws['Prefix'] + ' ' + saws['Service Location'] + ' ' + saws['Suffix']
     # Stripping any extra whitespace
-    df['location'] = df.location.str.strip()
-    # Dropping columns
-    df.drop(columns = ['Unnamed: 0', 'ZIP Code', 'Prefix', 'Service Location', 'Suffix'], inplace = True)
-    # Resetting the index to be record numbers
-    df = df.set_index('Record #')
-    # Transposing the data
-    df = df.T
-    # Remove any column that has more than 8 NaN values
-    df = df.dropna(thresh=len(df) - 8, axis=1)
-    return df
+    saws['location'] = saws.location.str.strip()
+    saws = saws.drop(columns=['Unnamed: 0', 'Prefix', 'Suffix', 'Service Location'])
+    saws = saws.melt(id_vars=['Record #', 'ZIP Code', 'location'], 
+              var_name='Month & Year', value_name='Gallons Consumed')
+    saws = saws.set_index('Record #')
+    saws = saws.fillna(0)
+    saws = saws.rename(columns={"ZIP Code": "zipcode", 'Month & Year':'year_month', 
+                                'Gallons Consumed':'gallons_consumed'})
+    return saws
+
 
 #-----------------------------------------------------------------------------
 
@@ -223,7 +220,6 @@ def clean_saws(saws_df):
 #-----------------------------------------------------------------------------
 
 # Sound Cleaning
-
 def wrangle_sound():
     '''
     This function drops unnecessary columns and
