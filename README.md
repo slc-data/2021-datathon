@@ -164,52 +164,77 @@ ___
     
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
-| Record (all column with the exception of location) | #	Unique Record Number (used to cross reference SAWS internal dataset) | Data Type |
-| location | Compass direction associated with street name (N, S, E, W, NE, NW, SE, SW or blank), name of street where residential type service account is located and type associated with street name (ST, RD, DR, CT, LOOP, PKWY, BLVD… etc.) | Data Type |
+| Record # | #	Unique Record Number (used to cross reference SAWS internal dataset) | int64 |
+| zipcode | zip code of loaction | object |
+| location | Compass direction associated with street name (N, S, E, W, NE, NW, SE, SW or blank), name of street where residential type service account is located and type associated with street name (ST, RD, DR, CT, LOOP, PKWY, BLVD… etc.) | object |
+| year_month | Month and Year of observation | object |
+| gallons_consumed | number of gallons used | object |
+
     
 ### COSA Air
     
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
-| DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
-| Pm1_0 | Microgram per meter cube of inhalable particles with diameter smaller than 1 Micron | Data Type |
-| Pm2_5 | Microgram per meter cube of inhalable particles with diameter smaller 2.5 Micron | Data Type |
-| Pm10 | Microgram per meter cube of inhalable particles with diameter smaller 10 Micron | Data Type |
-| SO2 | Sulfuric Dioxide concentration in PPM (parts per million) | Data Type |
-| O3 | Ozone concentration in PPM (parts per million) | Data Type |
-| CO | Carbone Monoxide concentration in PPM (parts per million) | Data Type |
-| NO2 | Nitrogen Dioxide concentration in PPM (parts per million) | Data Type |
-| AlertTriggered | A list of measurements that triggered an alert. | Data Type |
-
+| DateTime | Date and Time when the value was read by the sensor in local time | datetime64[ns] |
+| Pm1_0 | Microgram per meter cube of inhalable particles with diameter smaller than 1 Micron | int64  |
+| Pm2_5 | Microgram per meter cube of inhalable particles with diameter smaller 2.5 Micron | int64  |
+| Pm10 | Microgram per meter cube of inhalable particles with diameter smaller 10 Micron | int64 |
+| SO2 | Sulfuric Dioxide concentration in PPM (parts per million) | int64  |
+| O3 | Ozone concentration in PPM (parts per million) | float64 |
+| CO | Carbone Monoxide concentration in PPM (parts per million) | int64  |
+| NO2 | Nitrogen Dioxide concentration in PPM (parts per million) | int64  |
+| AlertTriggered | A list of measurements that triggered an alert. | object |
+| dates | Date of recording | object |
+| time | Time of recording | object |
+| hour | Hour of the day observation was made | int64 |
+| weekday | Whcih day of the week recoding took place | int64 |
+| AQI_CO | Air Quality Index of individual recording for carbon monoxide| category |
+| CO_24hr | Average carbon Monoxide levels for the day | float64 |
+| AQI_CO_24hr | Air Quality Index of daily average carbon monoxide levels | category |
+| AQI_pm2_5 | Air Quality Index of individual recording for particles at 2.5 micron | category |
+| Pm_25_24hr | Average levels of particles at 2.5 micron for the day| float64 |
+| AQI_pm_25_24hr | Air Quality Index of daily average partices at 2.5 micron | category |
+| AQI_pm10 | Air Quality Index of individual recording for particles at 10 micron | category |
+| Pm_10_24hr | Average levels of particles at 10 micron for the day | float64 |
+| AQI_pm10_24hr | Air Quality Index of daily average partices at 10 micron | category | 
+    
 ### COSA Flood
     
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
-| DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
-| DistToWL(ft) | Distance from sensor to water level in ft | Data Type |
-| DistToWL(m) | Distance from sensor to water level in m | Data Type |
-| DistToDF(ft) | Distance from sensor to dry floor of river, creek etc. (ft) | Data Type |
-| DistToDF(m) | Distance from sensor to dry floor of river, creek etc. (m) | Data Type |
+| DateTime | Date and Time when the value was read by the sensor in local time | datetime64[ns] |
+| sensor_to_water_feet | Distance from sensor to water level in ft | float64 |
+| sensor_to_water_meters | Distance from sensor to water level in m | float64 |
+| sensor_to_ground_feet | Distance from sensor to dry floor of river, creek etc. (ft) | float64 |
+| sensor_to_ground_meters | Distance from sensor to dry floor of river, creek etc. (m) | float64 |
+| flood_depth_feet | Depth of flood waters in feet | float64 |
+| flood_depth_meters | Depth of flood waters in meters | float64 |
 
 ### COSA Sound
     
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
-| DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
-| NoiseLevel(db) | Noise level in decibels (db) | Data Type |
+| DateTime | Date and Time when the value was read by the sensor in local time | datetime64[ns] |
+| NoiseLevel_db | Noise level in decibels (db) | int64|
+| NoiseLevel_db | Nose levels in severity | category|
   
 
 ### COSA Weather
     
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
-| DateTime | Date and Time when the value was read by the sensor in local time | Data Type |
-| Temp(c) | Ambient air temperature in deg C | Data Type |
-| Temp(F) | Ambient air temperature in deg F | Data Type |
-| Humidity(%) | % Relative Humidity (RH) | Data Type |
-| DewPoint(c) | Due point in deg C | Data Type |
-| DewPoint(F) | Due point in deg F | Data Type |
-| Pressure(Pa) | Atmospheric pressure in Pascal (Pa) | Data Type |
+| datetime | Date and Time when the value was read by the sensor in local time | datetime64[ns] |
+| celsius | Ambient air temperature in deg C | float64 |
+| farenheit | Ambient air temperature in deg F | float64 |
+| humidity | % Relative Humidity (RH) | float64 |
+| dewpoint_celsius | Due point in deg C | float64 |
+| dewpoint_farenheit | Due point in deg F |float64 |
+| pressure | Atmospheric pressure in Pascal (Pa) | float64 |
+| time | Time of reading | object |
+| date | Date of reading | object |
+| weather | What the weather was like outside | object |
+| wind | Wind speed in miles per hour | object |
+| visibility | visibility in miles| object |
   
 
 ***
