@@ -193,35 +193,11 @@ def wrangle_saws():
     saws = saws.fillna(0)
     saws = saws.rename(columns={"ZIP Code": "zipcode", 'Month & Year':'year_month', 
                                 'Gallons Consumed':'gallons_consumed'})
+    # replace * with 0
+    saws = saws.replace(to_replace='*', value=0)
+    # change data type
+    saws['gallons_consumed'].astype(int)
     return saws
-
-
-#-----------------------------------------------------------------------------
-
-# Cleaning saws for analysis
-
-def clean_saws(saws_df):
-    '''
-    This function converts index to datetime object,
-    makes columns into strings instead of integers,
-    replace '*' with zeroes, converts data into integers,
-    and fills any NaNs with the average for that column
-    '''
-    # Drops the location row as it messes with calculation, can be added back later
-    saws_df = saws_df.drop(['location'])
-    # Fix formatting of datetime row
-    saws_df.index = '20' + saws_df.index.str[0:2] + '-' + saws_df.index.str[3:] + '-' + '01'
-    # Converting to a datetime object
-    saws_df.index = pd.to_datetime(saws_df.index)
-    # Converts column names to strings
-    saws_df.columns = saws_df.columns.astype(str)
-    # Replaces asterisks with stars
-    saws_df = saws_df.replace('*', 0)
-    # Changes data in the dataframe into integers
-    saws_df = saws_df.apply(pd.to_numeric)
-    # Replaces NaN values with average of that column
-    saws_df = saws_df.fillna(saws_df.mean())
-    return saws_df
     
 #-----------------------------------------------------------------------------
 
