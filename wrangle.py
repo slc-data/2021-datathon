@@ -196,7 +196,7 @@ def wrangle_saws():
     # replace * with 0
     saws = saws.replace(to_replace='*', value=0)
     # change data type
-    saws['gallons_consumed'].astype(int)
+    saws['gallons_consumed'] = saws['gallons_consumed'].astype(int)
     return saws
     
     
@@ -300,7 +300,7 @@ def full_daily_COSA_dataframe():
     weather_day_df = weather_df.resample('D', on='datetime').mean()
     flood_day_df = flood_df.resample('D').mean()
     sound_day_df = sound_df.resample('D').mean()
-    air_day_df = air_df.resample('D').mean().drop(columns = ['hour', 'weekday', 'CO_24hr', 'Pm_25_24hr', 'Pm_10_24hr', 'SO2', 'O3', 'NO2'])
+    air_day_df = air_df.resample('D').mean().drop(columns = ['hour', 'weekday', 'CO_24hr', 'Pm_25_24hr', 'Pm_10_24hr'])
     # Creating series for each pollutant
     air2_5 = air_df.drop(air_df.columns.difference(['Pm2_5', 'AQI_pm2_5']), 1)
     air10 = air_df.drop(air_df.columns.difference(['Pm10', 'AQI_pm10']), 1)
