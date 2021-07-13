@@ -198,7 +198,7 @@ def wrangle_saws():
     # replace * with 0
     saws = saws.replace(to_replace='*', value=0)
     # change data type
-    saws['gallons_consumed'].astype(int)
+    saws['gallons_consumed'] = saws['gallons_consumed'].astype(int)
     return saws
     
     
@@ -275,7 +275,6 @@ def scale_my_data(train, validate, test):
 #-----------------------------------------------------------------------------
 
 # Daily averages and more for all COSA sataframes
-
 def full_daily_COSA_dataframe():
     
     '''
