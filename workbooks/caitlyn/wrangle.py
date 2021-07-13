@@ -320,4 +320,22 @@ def full_daily_COSA_dataframe():
           'pressure': 2, 'NoiseLevel_db': 2, 'sensor_to_water_feet': 2, 'sensor_to_water_meters': 2,
           'sensor_to_ground_feet': 2, 'sensor_to_ground_meters': 2, 'flood_depth_feet': 2,
           'flood_depth_meters': 2})
+    # Create AQI for CO
+    df['AQI_CO'] = pd.cut(df.CO, 
+                            bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                            labels = ['Good', 'Moderate', 
+                                      'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                      "Very Unhealthy", 'Hazardous'])
+    # create AQi for pm 2.5
+    df['AQI_pm2_5'] = pd.cut(df.Pm2_5, 
+                                bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    # create AQI for pm 10
+    df['AQI_pm10'] = pd.cut(df.Pm10, 
+                                bins = [-1,55,154,255,355,425,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
     return df

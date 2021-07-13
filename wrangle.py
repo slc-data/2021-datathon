@@ -275,7 +275,6 @@ def scale_my_data(train, validate, test):
 #-----------------------------------------------------------------------------
 
 # Daily averages and more for all COSA sataframes
-
 def full_daily_COSA_dataframe():
     
     '''
@@ -291,13 +290,8 @@ def full_daily_COSA_dataframe():
     # Pulls flood CSV and sets datetime as index
     flood_df = clean_flood()
     flood_df = flood_df.set_index('datetime')
-    # Pulls weather CSV and strips wind and visibility columns of non_numeric characters, then converts those columns to integers
+    # Pulls weather CSV
     weather_df = wrangle_weather()
-    weather_df['wind'] = weather_df['wind'].str.extract('(\d+)', expand=False)
-    weather_df['visibility'] = weather_df['visibility'].str.extract('(\d+)', expand=False)
-    weather_df['wind'] = weather_df['wind'].fillna(0)
-    weather_df['wind'] = weather_df['wind'].apply(lambda x: int(x))
-    weather_df['visibility'] = weather_df['visibility'].apply(lambda x: int(x))
     # Pulls air CSV, sets datetime column to datetime object, sets it as an index, then sorts it
     air_df = clean_air()
     air_df.datetime = pd.to_datetime(air_df.datetime)
@@ -307,7 +301,7 @@ def full_daily_COSA_dataframe():
     weather_day_df = weather_df.resample('D', on='datetime').mean()
     flood_day_df = flood_df.resample('D').mean()
     sound_day_df = sound_df.resample('D').mean()
-    air_day_df = air_df.resample('D').mean().drop(columns = ['hour', 'weekday', 'CO_24hr', 'Pm_25_24hr', 'Pm_10_24hr'])
+    air_day_df = air_df.resample('D').mean().drop(columns = ['hour', 'weekday', 'CO_24hr', 'Pm_25_24hr', 'Pm_10_24hr', 'SO2', 'O3', 'NO2'])
     # Creating series for each pollutant
     air2_5 = air_df.drop(air_df.columns.difference(['Pm2_5', 'AQI_pm2_5']), 1)
     air10 = air_df.drop(air_df.columns.difference(['Pm10', 'AQI_pm10']), 1)
@@ -322,7 +316,25 @@ def full_daily_COSA_dataframe():
     df = weather_day_df.join(air_day_df).join(hazards).join(sound_day_df).join(flood_day_df)
     # Rounds numbers in specific columns
     df = df.round({'celsius': 2, 'farenheit': 2, 'humidity': 2, 'dewpoint_celsius': 2, 'dewpoint_farenheit': 2,
-          'pressure': 2, 'wind': 2, 'visibility': 2, 'NoiseLevel_db': 2, 'sensor_to_water_feet': 2, 'sensor_to_water_meters': 2,
+          'pressure': 2, 'NoiseLevel_db': 2, 'sensor_to_water_feet': 2, 'sensor_to_water_meters': 2,
           'sensor_to_ground_feet': 2, 'sensor_to_ground_meters': 2, 'flood_depth_feet': 2,
           'flood_depth_meters': 2})
+    # Create AQI for CO
+    df['AQI_CO'] = pd.cut(df.CO, 
+                            bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                            labels = ['Good', 'Moderate', 
+                                      'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                      "Very Unhealthy", 'Hazardous'])
+    # create AQi for pm 2.5
+    df['AQI_pm2_5'] = pd.cut(df.Pm2_5, 
+                                bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    # create AQI for pm 10
+    df['AQI_pm10'] = pd.cut(df.Pm10, 
+                                bins = [-1,55,154,255,355,425,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
     return df
