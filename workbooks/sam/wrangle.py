@@ -289,8 +289,13 @@ def full_daily_COSA_dataframe():
     # Pulls flood CSV and sets datetime as index
     flood_df = clean_flood()
     flood_df = flood_df.set_index('datetime')
-    # Pulls weather CSV
+    # Pulls weather CSV and strips wind and visibility columns of non_numeric characters, then converts those columns to integers
     weather_df = wrangle_weather()
+    weather_df['wind'] = weather_df['wind'].str.extract('(\d+)', expand=False)
+    weather_df['visibility'] = weather_df['visibility'].str.extract('(\d+)', expand=False)
+    weather_df['wind'] = weather_df['wind'].fillna(0)
+    weather_df['wind'] = weather_df['wind'].apply(lambda x: int(x))
+    weather_df['visibility'] = weather_df['visibility'].apply(lambda x: int(x))
     # Pulls air CSV, sets datetime column to datetime object, sets it as an index, then sorts it
     air_df = clean_air()
     air_df.datetime = pd.to_datetime(air_df.datetime)
@@ -315,7 +320,7 @@ def full_daily_COSA_dataframe():
     df = weather_day_df.join(air_day_df).join(hazards).join(sound_day_df).join(flood_day_df)
     # Rounds numbers in specific columns
     df = df.round({'celsius': 2, 'farenheit': 2, 'humidity': 2, 'dewpoint_celsius': 2, 'dewpoint_farenheit': 2,
-          'pressure': 2, 'NoiseLevel_db': 2, 'sensor_to_water_feet': 2, 'sensor_to_water_meters': 2,
+          'pressure': 2, 'wind': 2, 'visibility': 2, 'NoiseLevel_db': 2, 'sensor_to_water_feet': 2, 'sensor_to_water_meters': 2,
           'sensor_to_ground_feet': 2, 'sensor_to_ground_meters': 2, 'flood_depth_feet': 2,
           'flood_depth_meters': 2})
     return df
