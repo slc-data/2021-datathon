@@ -84,6 +84,8 @@ def clean_air():
 #-----------------------------------------------------------------------------
 
 # Flood Cleaning
+
+# Flood Cleaning
 def clean_flood():
     '''Drops unneeded columns from the med center flooding df
     Makes sure DateTime is in DateTime format'''
@@ -175,6 +177,17 @@ def wrangle_weather():
 #-----------------------------------------------------------------------------
 
 # Wrangle SAWS
+
+def fix_dates(saws):
+    '''
+    Function to fix year month column into
+    datetime.  Adds arbitraty day. but keeps 
+    the same month and year.  
+    '''
+    saws['datetime'] = '01-20' + saws['year_month']
+    saws.datetime = pd.to_datetime(saws.datetime)
+    return saws
+
 def wrangle_saws():
     '''This function will drop unnecessary columns, 
     create a 'location' using data acquired from 
@@ -199,7 +212,8 @@ def wrangle_saws():
     saws = saws.replace(to_replace='*', value=0)
     # change data type
     saws['gallons_consumed'] = saws['gallons_consumed'].astype(int)
-    return saws
+
+    return fix_dates(saws)
     
     
 #-----------------------------------------------------------------------------
