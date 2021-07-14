@@ -85,6 +85,7 @@ def clean_air():
 
 # Flood Cleaning
 
+# Flood Cleaning
 def clean_flood():
     '''Drops unneeded columns from the med center flooding df
     Makes sure DateTime is in DateTime format'''
@@ -106,8 +107,8 @@ def clean_flood():
     flood["sensor_to_ground_feet"].replace({-999:13.500656}, inplace=True)
     flood["sensor_to_ground_meters"].replace({-999:4.115}, inplace=True)
     # create new features for flood depth
-    flood['flood_depth_feet'] = flood.sensor_to_water_feet - flood.sensor_to_ground_feet
-    flood['flood_depth_meters'] = flood.sensor_to_water_meters - flood.sensor_to_ground_meters
+    flood['flood_depth_feet'] = flood.sensor_to_ground_feet - flood.sensor_to_water_feet
+    flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters 
     # return new df
     return flood
 
