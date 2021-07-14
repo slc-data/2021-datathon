@@ -184,8 +184,8 @@ def fix_dates(saws):
     datetime.  Adds arbitraty day. but keeps 
     the same month and year.  
     '''
-    saws['year_month'] = '01-20' + saws['year_month']
-    saws.year_month = pd.to_datetime(saws.year_month)
+    saws['datetime'] = '01-20' + saws['year_month']
+    saws.datetime = pd.to_datetime(saws.datetime)
     return saws
 
 def wrangle_saws():
