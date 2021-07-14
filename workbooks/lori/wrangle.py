@@ -102,6 +102,8 @@ def clean_flood():
                         "DistToWL_m": "sensor_to_water_meters", 
                         "DistToDF_ft": "sensor_to_ground_feet",
                         "DistToDF_m": "sensor_to_ground_meters"})
+    # replae -999 with 0
+    flood = flood.replace(to_replace=-999, value=0)
     # create new features for flood depth
     flood['flood_depth_feet'] = flood.sensor_to_ground_feet - flood.sensor_to_water_feet
     flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters
@@ -193,35 +195,12 @@ def wrangle_saws():
     saws = saws.fillna(0)
     saws = saws.rename(columns={"ZIP Code": "zipcode", 'Month & Year':'year_month', 
                                 'Gallons Consumed':'gallons_consumed'})
+    # replace * with 0
+    saws = saws.replace(to_replace='*', value=0)
+    # change data type
+    saws['gallons_consumed'] = saws['gallons_consumed'].astype(int)
     return saws
-
-
-#-----------------------------------------------------------------------------
-
-# Cleaning saws for analysis
-
-def clean_saws(saws_df):
-    '''
-    This function converts index to datetime object,
-    makes columns into strings instead of integers,
-    replace '*' with zeroes, converts data into integers,
-    and fills any NaNs with the average for that column
-    '''
-    # Drops the location row as it messes with calculation, can be added back later
-    saws_df = saws_df.drop(['location'])
-    # Fix formatting of datetime row
-    saws_df.index = '20' + saws_df.index.str[0:2] + '-' + saws_df.index.str[3:] + '-' + '01'
-    # Converting to a datetime object
-    saws_df.index = pd.to_datetime(saws_df.index)
-    # Converts column names to strings
-    saws_df.columns = saws_df.columns.astype(str)
-    # Replaces asterisks with stars
-    saws_df = saws_df.replace('*', 0)
-    # Changes data in the dataframe into integers
-    saws_df = saws_df.apply(pd.to_numeric)
-    # Replaces NaN values with average of that column
-    saws_df = saws_df.fillna(saws_df.mean())
-    return saws_df
+    
     
 #-----------------------------------------------------------------------------
 
@@ -296,7 +275,6 @@ def scale_my_data(train, validate, test):
 #-----------------------------------------------------------------------------
 
 # Daily averages and more for all COSA sataframes
-
 def full_daily_COSA_dataframe():
     
     '''
@@ -341,4 +319,22 @@ def full_daily_COSA_dataframe():
           'pressure': 2, 'NoiseLevel_db': 2, 'sensor_to_water_feet': 2, 'sensor_to_water_meters': 2,
           'sensor_to_ground_feet': 2, 'sensor_to_ground_meters': 2, 'flood_depth_feet': 2,
           'flood_depth_meters': 2})
+    # Create AQI for CO
+    df['AQI_CO'] = pd.cut(df.CO, 
+                            bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                            labels = ['Good', 'Moderate', 
+                                      'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                      "Very Unhealthy", 'Hazardous'])
+    # create AQi for pm 2.5
+    df['AQI_pm2_5'] = pd.cut(df.Pm2_5, 
+                                bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    # create AQI for pm 10
+    df['AQI_pm10'] = pd.cut(df.Pm10, 
+                                bins = [-1,55,154,255,355,425,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
     return df
