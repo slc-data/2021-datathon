@@ -103,7 +103,8 @@ def clean_flood():
                         "DistToDF_ft": "sensor_to_ground_feet",
                         "DistToDF_m": "sensor_to_ground_meters"})
     # replae -999 with 0
-    flood = flood.replace(to_replace=-999, value=0)
+    flood["sensor_to_ground_feet"].replace({-999:13.500656}, inplace=True)
+    flood["sensor_to_ground_meters"].replace({-999:4.115}, inplace=True)
     # create new features for flood depth
     flood['flood_depth_feet'] = flood.sensor_to_ground_feet - flood.sensor_to_water_feet
     flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters
