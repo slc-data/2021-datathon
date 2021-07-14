@@ -177,6 +177,17 @@ def wrangle_weather():
 #-----------------------------------------------------------------------------
 
 # Wrangle SAWS
+
+def fix_dates(saws):
+    '''
+    Function to fix year month column into
+    datetime.  Adds arbitraty day. but keeps 
+    the same month and year.  
+    '''
+    saws['year_month'] = '01-20' + saws['year_month']
+    saws.year_month = pd.to_datetime(saws.year_month)
+    return saws
+
 def wrangle_saws():
     '''This function will drop unnecessary columns, 
     create a 'location' using data acquired from 
@@ -201,7 +212,8 @@ def wrangle_saws():
     saws = saws.replace(to_replace='*', value=0)
     # change data type
     saws['gallons_consumed'] = saws['gallons_consumed'].astype(int)
-    return saws
+
+    return fix_dates(saws)
     
     
 #-----------------------------------------------------------------------------
