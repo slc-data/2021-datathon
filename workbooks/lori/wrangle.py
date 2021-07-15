@@ -78,6 +78,65 @@ def clean_air():
                                 labels = ['Good', 'Moderate', 
                                           'Unhealthy for Sensitive Groups', "Unhealthy", 
                                           "Very Unhealthy", 'Hazardous'])
+    # create new unhealthy alert system
+    def air_alert(c):
+        if c['Pm2_5'] > 55.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 254.9:
+            return 'Pm10'
+        elif c['CO'] > 12.4:
+            return 'CO'
+        else:
+            return 'No Alert'
+    air['unhealthy_alert'] = air.apply(air_alert, axis=1)
+    # create new sensitive alert system
+    def sensitive_air_alert(c):
+        if c['Pm2_5'] > 34.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 154.9:
+            return 'Pm10'
+        elif c['CO'] > 9.4:
+            return 'CO'
+        else:
+            return 'No Alert'
+    air['sensitive_alert'] = air.apply(sensitive_air_alert, axis=1)
+    # create unhealthy HYPOTHTICAL Alert system
+        # hypothetical alerts are based on IF everything is reading in PPM
+    def hypo_air_alert(c):
+        if c['Pm2_5'] > 55.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 254.9:
+            return 'Pm10'
+        elif c['CO'] > 12.4:
+            return 'CO'
+        elif c['SO2'] > 0.1859:
+            return 'SO2'
+        elif c['O3'] > 0.1649:
+            return 'O3'
+        elif c['NO2'] > 0.3609:
+            return 'NO2'
+        else:
+            return 'No Alert'
+    air['hypothetical_unhealthy_alert'] = air.apply(hypo_air_alert, axis=1)
+    # create sensitive HYPOTHTICAL Alert system
+        # hypothetical alerts are based on IF everything is reading in PPM
+    def sensitive_air_alert(c):
+        if c['Pm2_5'] > 34.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 154.9:
+            return 'Pm10'
+        elif c['CO'] > 9.4:
+            return 'CO'
+        elif c['SO2'] > 0.0759:
+            return 'SO2'
+        elif c['O3'] > 0.124:
+            return 'O3'
+        elif c['NO2'] > 0.1009:
+            return 'NO2'
+        else:
+            return 'No Alert'
+
+    air['hypothetical_sensitive_alert'] = air.apply(sensitive_air_alert, axis=1)
     # return new df
     return air
 
@@ -85,6 +144,7 @@ def clean_air():
 
 # Flood Cleaning
 
+# Flood Cleaning
 def clean_flood():
     '''Drops unneeded columns from the med center flooding df
     Makes sure DateTime is in DateTime format'''
@@ -103,10 +163,25 @@ def clean_flood():
                         "DistToDF_ft": "sensor_to_ground_feet",
                         "DistToDF_m": "sensor_to_ground_meters"})
     # replae -999 with 0
+    flood["sensor_to_ground_feet"].replace({-999:13.500656}, inplace=True)
+    flood["sensor_to_ground_meters"].replace({-999:4.115}, inplace=True)
     flood = flood.replace(to_replace=-999, value=0)
     # create new features for flood depth
     flood['flood_depth_feet'] = flood.sensor_to_ground_feet - flood.sensor_to_water_feet
-    flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters
+    flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters 
+    # Create new alert
+    def flood_alert(c):
+        if 0 < c['flood_depth_meters'] < 10:
+            return 'No Risk'
+        elif 10 < c['flood_depth_meters'] < 11:
+            return 'Minor Risk'
+        elif 11 < c['flood_depth_meters'] < 12:
+            return 'Moderate Risk'
+        elif 12 < c['flood_depth_meters']:
+            return 'Major Risk Risk'
+        else:
+            return 'No Alert'
+    flood['flood_alert'] = flood.apply(flood_alert, axis=1)
     # return new df
     return flood
 
@@ -175,6 +250,17 @@ def wrangle_weather():
 #-----------------------------------------------------------------------------
 
 # Wrangle SAWS
+
+def fix_dates(saws):
+    '''
+    Function to fix year month column into
+    datetime.  Adds arbitraty day. but keeps 
+    the same month and year.  
+    '''
+    saws['datetime'] = '01-20' + saws['year_month']
+    saws.datetime = pd.to_datetime(saws.datetime)
+    return saws
+
 def wrangle_saws():
     '''This function will drop unnecessary columns, 
     create a 'location' using data acquired from 
@@ -199,7 +285,8 @@ def wrangle_saws():
     saws = saws.replace(to_replace='*', value=0)
     # change data type
     saws['gallons_consumed'] = saws['gallons_consumed'].astype(int)
-    return saws
+
+    return fix_dates(saws)
     
     
 #-----------------------------------------------------------------------------
@@ -219,7 +306,7 @@ def wrangle_sound():
     # Converts to datetime
     df['DateTime'] = pd.to_datetime(df.DateTime)
     # make noise level feature
-    df['noise_level'] = pd.cut(df.NoiseLevel_db, 
+    df['noise_alert'] = pd.cut(df.NoiseLevel_db, 
                                 bins = [-1,46,66,81,101,4000],
                                 labels = ['Normal', 'Moderate', 
                                           'Loud', "Very Loud", 
