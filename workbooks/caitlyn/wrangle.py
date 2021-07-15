@@ -318,7 +318,7 @@ def wrangle_sound():
             return 'Major Risk'
         else:
             return 'No Alert'
-    sound['sound_alert'] = sound.apply(sound_alert, axis=1)
+    df['sound_alert'] = df.apply(sound_alert, axis=1)
     return df
 
 #-----------------------------------------------------------------------------
