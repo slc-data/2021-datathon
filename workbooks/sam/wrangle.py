@@ -85,6 +85,7 @@ def clean_air():
 
 # Flood Cleaning
 
+# Flood Cleaning
 def clean_flood():
     '''Drops unneeded columns from the med center flooding df
     Makes sure DateTime is in DateTime format'''
@@ -103,10 +104,12 @@ def clean_flood():
                         "DistToDF_ft": "sensor_to_ground_feet",
                         "DistToDF_m": "sensor_to_ground_meters"})
     # replae -999 with 0
+    flood["sensor_to_ground_feet"].replace({-999:13.500656}, inplace=True)
+    flood["sensor_to_ground_meters"].replace({-999:4.115}, inplace=True)
     flood = flood.replace(to_replace=-999, value=0)
     # create new features for flood depth
     flood['flood_depth_feet'] = flood.sensor_to_ground_feet - flood.sensor_to_water_feet
-    flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters
+    flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters 
     # return new df
     return flood
 
@@ -175,6 +178,17 @@ def wrangle_weather():
 #-----------------------------------------------------------------------------
 
 # Wrangle SAWS
+
+def fix_dates(saws):
+    '''
+    Function to fix year month column into
+    datetime.  Adds arbitraty day. but keeps 
+    the same month and year.  
+    '''
+    saws['datetime'] = '01-20' + saws['year_month']
+    saws.datetime = pd.to_datetime(saws.datetime)
+    return saws
+
 def wrangle_saws():
     '''This function will drop unnecessary columns, 
     create a 'location' using data acquired from 
@@ -199,7 +213,8 @@ def wrangle_saws():
     saws = saws.replace(to_replace='*', value=0)
     # change data type
     saws['gallons_consumed'] = saws['gallons_consumed'].astype(int)
-    return saws
+
+    return fix_dates(saws)
     
     
 #-----------------------------------------------------------------------------
@@ -292,11 +307,6 @@ def full_daily_COSA_dataframe():
     flood_df = flood_df.set_index('datetime')
     # Pulls weather CSV
     weather_df = wrangle_weather()
-    weather_df['wind'] = weather_df['wind'].str.extract('(\d+)', expand=False)
-    weather_df['visibility'] = weather_df['visibility'].str.extract('(\d+)', expand=False)
-    weather_df['wind'] = weather_df['wind'].fillna(0)
-    weather_df['wind'] = weather_df['wind'].apply(lambda x: int(x))
-    weather_df['visibility'] = weather_df['visibility'].apply(lambda x: int(x))
     # Pulls air CSV, sets datetime column to datetime object, sets it as an index, then sorts it
     air_df = clean_air()
     air_df.datetime = pd.to_datetime(air_df.datetime)
