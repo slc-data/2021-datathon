@@ -250,7 +250,6 @@ def wrangle_weather():
 #-----------------------------------------------------------------------------
 
 # Wrangle SAWS
-
 def fix_dates(saws):
     '''
     Function to fix year month column into
@@ -306,7 +305,7 @@ def wrangle_sound():
     # Converts to datetime
     df['DateTime'] = pd.to_datetime(df.DateTime)
     # make noise level feature
-    df['noise_alert'] = pd.cut(df.NoiseLevel_db, 
+    df['noise_level'] = pd.cut(df.NoiseLevel_db, 
                                 bins = [-1,46,66,81,101,4000],
                                 labels = ['Normal', 'Moderate', 
                                           'Loud', "Very Loud", 
