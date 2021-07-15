@@ -311,6 +311,14 @@ def wrangle_sound():
                                 labels = ['Normal', 'Moderate', 
                                           'Loud', "Very Loud", 
                                           "Extremely Loud"])
+    def sound_alert(c):
+        if c['NoiseLevel_db'] > 80:
+            return 'Minor Risk'
+        elif c['NoiseLevel_db'] > 120:
+            return 'Major Risk'
+        else:
+            return 'No Alert'
+    sound['sound_alert'] = sound.apply(sound_alert, axis=1)
     return df
 
 #-----------------------------------------------------------------------------
