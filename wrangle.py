@@ -173,11 +173,11 @@ def clean_flood():
     flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters 
     # Create new alert
     def flood_alert(c):
-        if 0 < c['flood_depth_feet'] < 10:
+        if 0 < c['flood_depth_feet'] < 0.66667:
             return 'No Risk'
-        elif 10 < c['flood_depth_feet'] < 11:
+        elif 10 < c['flood_depth_feet'] < 1.08333:
             return 'Minor Risk'
-        elif 11 < c['flood_depth_feet'] < 12:
+        elif 11 < c['flood_depth_feet'] < 2.16667:
             return 'Moderate Risk'
         elif 12 < c['flood_depth_feet']:
             return 'Major Risk !'
