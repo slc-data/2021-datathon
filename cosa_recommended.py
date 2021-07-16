@@ -175,13 +175,23 @@ def add_sensitive_alert(df):
 
 #-----------------------------------------------------------------------------
 
-# Re-configure sound alert
-    # We decided to alert to minor and major risks over time
-        # over 80 decibles will trigger a minor risk because over time80 db will cause minor damage
-        # over 120 triggers as major risk because over time will cause major damage.
-def add_sound_alert(df):
-    '''Creates an alert if sound level gets to be over 80 and 120'''
-    # create parameters
+# To make it easier for citizens and other people not versed in the science of sound we recommend adding a feature to hold how loud everything is reading (in laymen's terms rather than decibles)
+def add_laymans_terms(df):
+    '''creates new feature to say how loud it is'''
+    df['how_loud'] = pd.cut(df.NoiseLevel_db, 
+                                bins = [-1,46,66,81,101,4000],
+                                labels = ['Normal', 'Moderate', 
+                                          'Loud', "Very Loud", 
+                                          "Extremely Loud"])
+    return df
+
+# We recommend reconfiguring the alert system for sound
+    # over 80 decibles is a minor risk because after prolonged time 80 db can cause minor hearing damage.
+    # over 120 db is a major risk because after prolonged time can cause major hearing damage. 
+# we recommend this alert system so in the future citizens can be alerts to the health and saftey risk in an area.
+def fix_sound_alert(df):
+    '''reconfigures sound alert and merges it on to df'''
+    # create the alert
     def sound_alert(c):
         if c['NoiseLevel_db'] > 80:
             return 'Minor Risk'
@@ -189,18 +199,58 @@ def add_sound_alert(df):
             return 'Major Risk'
         else:
             return 'No Alert'
-        # apply to df
+    # apply alert ot the df
     df['sound_alert'] = df.apply(sound_alert, axis=1)
     return df
 
-# Add in noise level in laymen's terms
-def add_laymens_terms(df):
-    '''says if the noise level is 
-    normal, moderate, loud, very loud, or extremelt loud'''
-    # make noise level feature
-    df['noise_level'] = pd.cut(df.NoiseLevel_db, 
-                                bins = [-1,46,66,81,101,4000],
-                                labels = ['Normal', 'Moderate', 
-                                          'Loud', "Very Loud", 
-                                          "Extremely Loud"])
+#-----------------------------------------------------------------------------
+
+# We recommend you fix the -999 reading sin both sensor to ground in feet and the sensor to ground in meters.
+    # This is an easy fix/replacement because all the readings are the same.
+        # 13.5006561680 feet from sensor to ground
+        # 4.115 meters from sensor to ground
+# then removing remaining -999 within the sensor to water levels
+def fix_missreadings(df):
+    '''replaces -999 in both sensor to ground readings'''
+    # replace the feet reading
+    df["sensor_to_ground_feet"].replace({-999:13.5006561680}, inplace=True)
+    # replace the meter reading
+    df["sensor_to_ground_meters"].replace({-999:4.115}, inplace=True)
+    # remove those in other features
+    df = df[(df.sensor_to_water_feet != -999)]
+    # return df
+    return df
+
+# we recommend creating flood depth readings for both measurments to see how bad the flood is.
+def add_flood_depth(df):
+    '''creates flood depth in both feet and meters'''
+    # create flood depth in feet
+    df['flood_depth_feet'] = df.sensor_to_ground_feet - df.sensor_to_water_feet
+    # create flood depth in meters
+    df['flood_depth_meters'] = df.sensor_to_ground_meters - df.sensor_to_water_meters 
+    return df
+
+# We recommend reconfiguring the alert system for sound
+    # over 
+    # over 
+    # over 
+    # over
+# we recommend this alert system so in the future citizens can be alerts to the health and saftey risk in an area.
+
+def fix_flood_alert(df):
+    '''reconfigures sound alert and merges it on to df'''
+    # create the alert
+    def flood_alert(c):
+        if 0 < c['flood_depth_feet'] < 0.66667:
+            return 'No Risk'
+        elif 10 < c['flood_depth_feet'] < 1.08333:
+            return 'Minor Risk'
+        elif 11 < c['flood_depth_feet'] < 2.16667:
+            return 'Moderate Risk'
+        elif 12 < c['flood_depth_feet']:
+            return 'Major Risk !'
+        else:
+            return 'No Alert'
+    # add to df
+    df['flood_alert'] = df.apply(flood_alert, axis=1)
     return df
