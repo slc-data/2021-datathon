@@ -3,9 +3,7 @@
 
 ***
 [[Project Description](#project_description)]
-[[Meet the Team](#team)]
 [[Work Though the Pipeline](#pipeline)]
-[[Key Findings](#findings)]
 [[Data Dictionaries](#dictionary)]
 [[Conclusion](#conclusion)]
 [[Recreate This Project](#recreate)]
@@ -30,25 +28,7 @@ ___
 - Find peak poor air quality times/days (so in the future what can the city do to combat the peak)
 
 </details>
-    
-    
-## <a name="Meet the Team"></a>
-![team]()
-[[Back to top](#top)]
 
-<details>
-  <summary>Click to expand!</summary>
-
-### Sam Keeler
-![sam](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/team.png?raw=true)
-    
-### Lori Segovia
-    
-    
-### Caitlyn Carney
-
-
-</details>
 
 ## <a name="pipeline"></a>
 ![pipeline](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/ds_pipeline.png?raw=true)
@@ -91,7 +71,52 @@ ___
 
 
 ### Exploration Findings:
-- 
+- Readings for ozone, SO2, and NO2 are readings really high. I speculate that these are actually reading in ppb rather than ppm as stated in the data dictionary. I theorize this (using ozone as an example) because there are a lot of readings above 1. In ppm 1 put air quality into Hazardous so the 100+ readings at 32 would kill anyone on entering this air. But if it is reading in ppb this would be good air quality.
+- None of the COSA datasets line up with any of the other data sets chronologically.
+- COSA and SAWS dates do not align with one another.
+- COSA and SAWS do not have a common feature.
+- PM 10: 
+    - concentration readings higher than 40 usually are being picked up earlier in the work week.
+        - Mon
+        - Tues
+- Ozone::
+    - Higher readings are not triggering any alerts. Basically anything above 15 is not triggering alerts
+        - But there is no way to know the actual AQI for these readings due to the inaccurate measurement of ozone
+- Carbon Monoxide:
+    - Triggers for readings at 63 and 129. However because there is a jump in readings from 8 to 63 there is no way to see where they actually trigger.
+    - Fridays and Sundays have the highest average Carbon Monoxide readings
+    - There are significantly more readings in the good range than any other
+        - In fact there are only good readings when it comes to daily averages
+    - For individual readings 
+        - Sunday has the most Hazardous readings
+        - Friday has some unhealthy readings and Saturday has some hazardous readings
+    - 5 and 6 am have the most hazardous reading throughout the day. But there are still more readings in the good range.
+    - There are no daily averages outside of good air quality
+- PM 2.5
+    - 2 pm has the highest average pm 2.5 reading
+    - Peak hours for unhealthy readings is 3 am, 8 am, and 11am
+    - There are no reading worse than unhealthy
+    - Triggers alerts above 34 but for some reason readings between 69 and 82 are not triggering an alert.
+    - It seems like alert triggered is not picking up any of the hazardous readings (Hazardous readings for pm 2.5 is anything above 250.5 there are 3 readings within this range)
+- Sound:
+    - Sound level is usually Moderate or Loud
+    - 4pm-5pm tend to have more recorded time at the ver loud level
+    - Hours between 8 and 11 am have a lot of very loud recorded moments.
+    - Midnight to 6am is the quietest time in the medical center
+    - Tuesdays and Fridays have a lot of recorded moments that were very loud
+    - Sundays have the highest number of moderate sound level recorded and the least amount of loud recordings
+- SAWS
+    - September of 2019 has the most water consumption throughout all months and years.
+    - In 2017 the month of August had the highest recorded water consumption.
+    - March is the lowest month for water consumption through all 4 years.
+    - March, January, and April tend to be on the lower side of water consumption.
+    - February was low in 2017 and 2018 but spikes in 2019 and 2020
+    - Water consumption was lowest for July in 2019
+    - 2019 had the lowest average water consumption.
+    - 2020 had the highest average water consumption.
+        - this may be due to the pandemic and the higher numbers of people being in the hospital and/or searching for medical help.
+    - There does seem to be a steady increase in water consumption when going into summer months such as June, July, August(which has the most gallons consumed over all).
+        - Then we start to see a steady decrease going into fall and winter months.
 
 ### Stats Test 1:
 - What is the test?
@@ -122,32 +147,6 @@ ___
 ​
     
 </details>    
-
-    
-## <a name="findings"></a>
-![find](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/key_findings.png?raw=true)
-
-[[Back to top](#top)]
-
-<details>
-  <summary>Click to expand!</summary>
-
-### Explore:
-- 
-    
-    
-### Stats
-- Stat Test 1: 
-    - which test:
-        - reject of accept null
-
-            
-- Stat Test 2: 
-    - which test:
-        - reject of accept null
-    
-
-***
 
     
 </details>
@@ -247,11 +246,11 @@ ___
 <details>
   <summary>Click to expand!</summary>
 
-I found....
+We found....
 
 With further time...
 
-I recommend...
+We recommend...
 
 
 </details>  
@@ -271,11 +270,6 @@ Good luck I hope you enjoy your project!
 
 </details>
     
-
-
-## 
-
-![Folder Contents](URL to photo)
 
 
 >>>>>>>>>>>>>>>
