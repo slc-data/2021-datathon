@@ -152,9 +152,8 @@ def clean_flood():
     Makes sure DateTime is in DateTime format'''
     # read csv
     flood = pd.read_csv('med_center_flood.csv')
-    # drop the colums
-    flood = flood.drop(columns=['LAT', 'LONG', 'Zone', 
-                          'Sensor_id', 'SensorModel', 
+    # drop the columns
+    flood = flood.drop(columns=['LAT', 'LONG', 'Zone',  
                           'SensorStatus', 'AlertTriggered', 
                           'Temp_C', 'Temp_F', 'Vendor'])
     # Set to date time format
@@ -165,25 +164,27 @@ def clean_flood():
                         "DistToDF_ft": "sensor_to_ground_feet",
                         "DistToDF_m": "sensor_to_ground_meters"})
     # replae -999 with 0
-    flood["sensor_to_ground_feet"].replace({-999:13.500656}, inplace=True)
+    flood["sensor_to_ground_feet"].replace({-999:13.5006561680}, inplace=True)
     flood["sensor_to_ground_meters"].replace({-999:4.115}, inplace=True)
-    flood = flood.replace(to_replace=-999, value=0)
+    
+    #flood = flood.replace(to_replace=-999, value=0)
     # create new features for flood depth
     flood['flood_depth_feet'] = flood.sensor_to_ground_feet - flood.sensor_to_water_feet
     flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters 
     # Create new alert
     def flood_alert(c):
-        if 0 < c['flood_depth_meters'] < 10:
+        if 0 < c['flood_depth_feet'] < 10:
             return 'No Risk'
-        elif 10 < c['flood_depth_meters'] < 11:
+        elif 10 < c['flood_depth_feet'] < 11:
             return 'Minor Risk'
-        elif 11 < c['flood_depth_meters'] < 12:
+        elif 11 < c['flood_depth_feet'] < 12:
             return 'Moderate Risk'
-        elif 12 < c['flood_depth_meters']:
-            return 'Major Risk Risk'
+        elif 12 < c['flood_depth_feet']:
+            return 'Major Risk !'
         else:
             return 'No Alert'
     flood['flood_alert'] = flood.apply(flood_alert, axis=1)
+    flood = flood[(flood.sensor_to_water_feet != -999)]
     # return new df
     return flood
 
