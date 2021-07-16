@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # turn off pink warning boxes
 import warnings
@@ -434,3 +436,71 @@ def full_daily_COSA_dataframe():
                                           'Unhealthy for Sensitive Groups', "Unhealthy", 
                                           "Very Unhealthy", 'Hazardous'])
     return df
+
+#-----------------------------------------------------------------------------
+
+#
+
+def show_saws():
+
+    '''
+    This function plots the SAWS dataset
+    by both streets and dates
+    '''
+    
+    # Pulls the data
+    saws_df = wrangle_saws()
+    # Creates a new column that has the date in a "year month" format that can be converted to a datetime object
+    saws_df['year_month'] = '20' + saws_df['year_month']
+    # Converts to datetime
+    saws_df['year_month'] = pd.to_datetime(saws_df['year_month'])
+    # Sets the index to the datetime object, then groups the data by month and drops zipcode (since they are all in the same one)
+    saws_month_year = saws_df.set_index('year_month').resample('M').mean().drop(columns = ['zipcode'])
+    # Creates a new column for labeling graphs with month and year
+    saws_month_year['Date'] = pd.to_datetime(saws_month_year.index)
+    # Truncates the 'Date' column into just month and year
+    saws_month_year['Mon_Year'] = saws_month_year['Date'].dt.strftime('%b-%Y')
+    # Creates a new dataframe for the mean of gallons used by street
+    saws_places = saws_df.groupby('location').mean()
+    # Drops zipcode column
+    saws_places = saws_places.drop(columns =['zipcode'])
+    # Creates a new dataframe for the sum of gallons used by street
+    saws_places_sum = saws_df.groupby('location').sum()
+    import calendar
+    # Creates dataframe for repesenting months by mean monthly water usage
+    saws_year_month_mean = saws_df.gallons_consumed.groupby(saws_df['year_month'].dt.month).mean()
+    saws_year_month_mean = pd.DataFrame(saws_year_month_mean)
+    saws_year_month_mean['month'] = saws_year_month_mean.index
+    # Labels numeric months into their respective shortened titles
+    saws_year_month_mean['month'] = saws_year_month_mean['month'].apply(lambda x: calendar.month_abbr[x])
+    
+    plt.subplots(4, 1, figsize=(24, 40), sharey=True)
+    plt.subplots_adjust(hspace=.5)
+    sns.set(style="darkgrid")
+        
+    plt.subplot(4, 1, 1)
+    plt.title('Average Monthly Water Use by Street')
+    plt.xticks(rotation = 90)
+    sns.barplot(data = saws_places, x = saws_places.index, y = 'gallons_consumed', palette = "viridis")
+    plt.xlabel('Street Name')
+    plt.ylabel('Average Monthly Gallons')
+    
+    plt.subplot(4, 1, 2)
+    plt.title('Sum of All Gallons Consumed by Street')
+    plt.xticks(rotation = 90)
+    sns.barplot(data = saws_places_sum, x = saws_places_sum.index, y = 'gallons_consumed', palette = "viridis")
+    plt.xlabel('Street Name')
+    plt.ylabel('Sum of Monthly Gallons')
+    
+    plt.subplot(4, 1, 3)
+    plt.title('Mean Property Consumption by Month Over 4 Year Period')
+    plt.xticks(rotation = 90)
+    sns.barplot(data = saws_month_year, x = saws_month_year['Mon_Year'], y = 'gallons_consumed', palette = "viridis")
+    plt.xlabel('Month')
+    plt.ylabel('Mean Property Consumption')
+    
+    plt.subplot(4, 1, 4)
+    plt.title('Mean Property Consumption by Month of Year')
+    sns.barplot(data = saws_year_month_mean, x = 'month', y = 'gallons_consumed', palette = "viridis")
+    plt.xlabel('Month')
+    plt.ylabel('Mean Property Consumption')

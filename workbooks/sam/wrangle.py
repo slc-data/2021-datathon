@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # turn off pink warning boxes
 import warnings
@@ -78,6 +80,65 @@ def clean_air():
                                 labels = ['Good', 'Moderate', 
                                           'Unhealthy for Sensitive Groups', "Unhealthy", 
                                           "Very Unhealthy", 'Hazardous'])
+    # create new unhealthy alert system
+    def air_alert(c):
+        if c['Pm2_5'] > 55.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 254.9:
+            return 'Pm10'
+        elif c['CO'] > 12.4:
+            return 'CO'
+        else:
+            return 'No Alert'
+    air['unhealthy_alert'] = air.apply(air_alert, axis=1)
+    # create new sensitive alert system
+    def sensitive_air_alert(c):
+        if c['Pm2_5'] > 34.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 154.9:
+            return 'Pm10'
+        elif c['CO'] > 9.4:
+            return 'CO'
+        else:
+            return 'No Alert'
+    air['sensitive_alert'] = air.apply(sensitive_air_alert, axis=1)
+    # create unhealthy HYPOTHTICAL Alert system
+        # hypothetical alerts are based on IF everything is reading in PPM
+    def hypo_air_alert(c):
+        if c['Pm2_5'] > 55.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 254.9:
+            return 'Pm10'
+        elif c['CO'] > 12.4:
+            return 'CO'
+        elif c['SO2'] > 0.1859:
+            return 'SO2'
+        elif c['O3'] > 0.1649:
+            return 'O3'
+        elif c['NO2'] > 0.3609:
+            return 'NO2'
+        else:
+            return 'No Alert'
+    air['hypothetical_unhealthy_alert'] = air.apply(hypo_air_alert, axis=1)
+    # create sensitive HYPOTHTICAL Alert system
+        # hypothetical alerts are based on IF everything is reading in PPM
+    def sensitive_air_alert(c):
+        if c['Pm2_5'] > 34.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 154.9:
+            return 'Pm10'
+        elif c['CO'] > 9.4:
+            return 'CO'
+        elif c['SO2'] > 0.0759:
+            return 'SO2'
+        elif c['O3'] > 0.124:
+            return 'O3'
+        elif c['NO2'] > 0.1009:
+            return 'NO2'
+        else:
+            return 'No Alert'
+
+    air['hypothetical_sensitive_alert'] = air.apply(sensitive_air_alert, axis=1)
     # return new df
     return air
 
@@ -110,6 +171,19 @@ def clean_flood():
     # create new features for flood depth
     flood['flood_depth_feet'] = flood.sensor_to_ground_feet - flood.sensor_to_water_feet
     flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters 
+    # Create new alert
+    def flood_alert(c):
+        if 0 < c['flood_depth_meters'] < 10:
+            return 'No Risk'
+        elif 10 < c['flood_depth_meters'] < 11:
+            return 'Minor Risk'
+        elif 11 < c['flood_depth_meters'] < 12:
+            return 'Moderate Risk'
+        elif 12 < c['flood_depth_meters']:
+            return 'Major Risk Risk'
+        else:
+            return 'No Alert'
+    flood['flood_alert'] = flood.apply(flood_alert, axis=1)
     # return new df
     return flood
 
@@ -234,12 +308,21 @@ def wrangle_sound():
     # Converts to datetime
     df['DateTime'] = pd.to_datetime(df.DateTime)
     # make noise level feature
-    df['noise_level'] = pd.cut(df.NoiseLevel_db, 
+    df['noise_alert'] = pd.cut(df.NoiseLevel_db, 
                                 bins = [-1,46,66,81,101,4000],
                                 labels = ['Normal', 'Moderate', 
                                           'Loud', "Very Loud", 
                                           "Extremely Loud"])
+    def sound_alert(c):
+        if c['NoiseLevel_db'] > 80:
+            return 'Minor Risk'
+        elif c['NoiseLevel_db'] > 120:
+            return 'Major Risk'
+        else:
+            return 'No Alert'
+    df['sound_alert'] = df.apply(sound_alert, axis=1)
     return df
+
 
 #-----------------------------------------------------------------------------
 
@@ -353,3 +436,71 @@ def full_daily_COSA_dataframe():
                                           'Unhealthy for Sensitive Groups', "Unhealthy", 
                                           "Very Unhealthy", 'Hazardous'])
     return df
+
+#-----------------------------------------------------------------------------
+
+#
+
+def show_saws():
+
+    '''
+    This function plots the SAWS dataset
+    by both streets and dates
+    '''
+    
+    # Pulls the data
+    saws_df = wrangle_saws()
+    # Creates a new column that has the date in a "year month" format that can be converted to a datetime object
+    saws_df['year_month'] = '20' + saws_df['year_month']
+    # Converts to datetime
+    saws_df['year_month'] = pd.to_datetime(saws_df['year_month'])
+    # Sets the index to the datetime object, then groups the data by month and drops zipcode (since they are all in the same one)
+    saws_month_year = saws_df.set_index('year_month').resample('M').mean().drop(columns = ['zipcode'])
+    # Creates a new column for labeling graphs with month and year
+    saws_month_year['Date'] = pd.to_datetime(saws_month_year.index)
+    # Truncates the 'Date' column into just month and year
+    saws_month_year['Mon_Year'] = saws_month_year['Date'].dt.strftime('%b-%Y')
+    # Creates a new dataframe for the mean of gallons used by street
+    saws_places = saws_df.groupby('location').mean()
+    # Drops zipcode column
+    saws_places = saws_places.drop(columns =['zipcode'])
+    # Creates a new dataframe for the sum of gallons used by street
+    saws_places_sum = saws_df.groupby('location').sum()
+    import calendar
+    # Creates dataframe for repesenting months by mean monthly water usage
+    saws_year_month_mean = saws_df.gallons_consumed.groupby(saws_df['year_month'].dt.month).mean()
+    saws_year_month_mean = pd.DataFrame(saws_year_month_mean)
+    saws_year_month_mean['month'] = saws_year_month_mean.index
+    # Labels numeric months into their respective shortened titles
+    saws_year_month_mean['month'] = saws_year_month_mean['month'].apply(lambda x: calendar.month_abbr[x])
+    
+    plt.subplots(4, 1, figsize=(24, 40), sharey=True)
+    plt.subplots_adjust(hspace=.5)
+    sns.set(style="darkgrid")
+        
+    plt.subplot(4, 1, 1)
+    plt.title('Average Monthly Water Use by Street')
+    plt.xticks(rotation = 90)
+    sns.barplot(data = saws_places, x = saws_places.index, y = 'gallons_consumed', palette = "viridis")
+    plt.xlabel('Street Name')
+    plt.ylabel('Average Monthly Gallons')
+    
+    plt.subplot(4, 1, 2)
+    plt.title('Sum of All Gallons Consumed by Street')
+    plt.xticks(rotation = 90)
+    sns.barplot(data = saws_places_sum, x = saws_places_sum.index, y = 'gallons_consumed', palette = "viridis")
+    plt.xlabel('Street Name')
+    plt.ylabel('Sum of Monthly Gallons')
+    
+    plt.subplot(4, 1, 3)
+    plt.title('Mean Property Consumption by Month Over 4 Year Period')
+    plt.xticks(rotation = 90)
+    sns.barplot(data = saws_month_year, x = saws_month_year['Mon_Year'], y = 'gallons_consumed', palette = "viridis")
+    plt.xlabel('Month')
+    plt.ylabel('Mean Property Consumption')
+    
+    plt.subplot(4, 1, 4)
+    plt.title('Mean Property Consumption by Month of Year')
+    sns.barplot(data = saws_year_month_mean, x = 'month', y = 'gallons_consumed', palette = "viridis")
+    plt.xlabel('Month')
+    plt.ylabel('Mean Property Consumption')
