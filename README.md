@@ -1,5 +1,5 @@
 <a name="top"></a>
-![name of photo](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/header.png?raw=true)
+![name of photo](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/new_header.png?raw=true)
 
 ***
 [[Project Description](#project_description)]
@@ -117,32 +117,7 @@ ___
         - this may be due to the pandemic and the higher numbers of people being in the hospital and/or searching for medical help.
     - There does seem to be a steady increase in water consumption when going into summer months such as June, July, August(which has the most gallons consumed over all).
         - Then we start to see a steady decrease going into fall and winter months.
-
-### Stats Test 1:
-- What is the test?
-    - 
-- Why use this test?
-    - 
-- What is being compared?
-    - 
-- Reject the null or fail to reject
-    - 
-- What was learned:
-    - 
-
-### Stats Test 2:
-- What is the test?
-    - 
-- Why use this test?
-    - 
-- What is being compared?
-    - 
-- Reject the null or fail to reject
-    - 
-- What was learned:
-    - 
-
-
+    
 ***
 ​
     
@@ -174,7 +149,7 @@ ___
     
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
-| DateTime | Date and Time when the value was read by the sensor in local time | datetime64[ns] |
+| datetime | Date and Time when the value was read by the sensor in local time | datetime64[ns] |
 | Pm1_0 | Microgram per meter cube of inhalable particles with diameter smaller than 1 Micron | int64  |
 | Pm2_5 | Microgram per meter cube of inhalable particles with diameter smaller 2.5 Micron | int64  |
 | Pm10 | Microgram per meter cube of inhalable particles with diameter smaller 10 Micron | int64 |
@@ -182,7 +157,7 @@ ___
 | O3 | Ozone concentration in PPM (parts per million) | float64 |
 | CO | Carbone Monoxide concentration in PPM (parts per million) | int64  |
 | NO2 | Nitrogen Dioxide concentration in PPM (parts per million) | int64  |
-| AlertTriggered | A list of measurements that triggered an alert. | object |
+| alert_triggered | A list of measurements that triggered an alert. | object |
 | dates | Date of recording | object |
 | time | Time of recording | object |
 | hour | Hour of the day observation was made | int64 |
@@ -196,18 +171,24 @@ ___
 | AQI_pm10 | Air Quality Index of individual recording for particles at 10 micron | category |
 | Pm_10_24hr | Average levels of particles at 10 micron for the day | float64 |
 | AQI_pm10_24hr | Air Quality Index of daily average partices at 10 micron | category | 
+| unhealthy_alert | Reconfigured alerts to alert to air quality measure at an unhealthy level or higher (reading CO, Pm 2.5 and 10) | onject |
+| sensitive_alert | Reconfigured alerts to alert to air quality measure at an unhealthy level for sensitve groups or higher (reading CO, Pm 2.5 and 10) | onject |
+    
+** We also created 2 features for both new alerts for how the data dictionary says eveything is read (reading SO2, NO2, O3, CO, Pm 2.5 and 10)
     
 ### COSA Flood
     
 | Attribute | Definition | Data Type |
 | ----- | ----- | ----- | 
-| DateTime | Date and Time when the value was read by the sensor in local time | datetime64[ns] |
+| datetime | Date and Time when the value was read by the sensor in local time | datetime64[ns] |
 | sensor_to_water_feet | Distance from sensor to water level in ft | float64 |
 | sensor_to_water_meters | Distance from sensor to water level in m | float64 |
 | sensor_to_ground_feet | Distance from sensor to dry floor of river, creek etc. (ft) | float64 |
 | sensor_to_ground_meters | Distance from sensor to dry floor of river, creek etc. (m) | float64 |
 | flood_depth_feet | Depth of flood waters in feet | float64 |
 | flood_depth_meters | Depth of flood waters in meters | float64 |
+| flood_alert | Fixed alert to flooding (reading in meters) | float64 |
+    
 
 ### COSA Sound
     
@@ -215,7 +196,8 @@ ___
 | ----- | ----- | ----- | 
 | DateTime | Date and Time when the value was read by the sensor in local time | datetime64[ns] |
 | NoiseLevel_db | Noise level in decibels (db) | int64|
-| NoiseLevel_db | Nose levels in severity | category|
+| how_loud | Nose levels in laymen's terms | category|
+| sound_alert | Nose levels in severity | category|
   
 
 ### COSA Weather
@@ -247,10 +229,47 @@ ___
   <summary>Click to expand!</summary>
 
 We found....
+- None of the 4 data sets from COSA line up together chronologically.
+- SAWS data and COSA had no commonality between them.
+- Dates dont work between the industries.
+    - SAWS data set time frame runs in year-month incriments from January 2017 to December 2020
+    - COSA data fruns from April 20th, 2021 to July 8th,2021
+- Readings for O3 SO2 and NO2 were readind EXTREMEMLY high (high enough to where you would die upon breathing the air)
+    - We theorized:
+        - That the sesors are reading these in PPB rather than in PPM
+            - This is important because a reading in PPM for Ozone at 32 (will kill you pretty much instantly.
+                - Note that there are over 100 readings for ozeone at 32 in PPM.
+            - But a reading for PPD for Ozone at 32 is a moderate air quality
+- COSA weather data does not actually provide what weather was being experienced that day.
+- Alerts for COSA's flood, sound, and weather were all reading as none.
+- Alerts for COSA's air quality were very spartic and not picking up all redings above the point alerts started.
+    
+We believe...
+- That by incorperating the changes we made to both the COSA data as well as the SAWS data set: 
+    - We will be able to find how sound, weather, flooding, and air quality affect water consumption.
+    - Forsee future issues to help create mitigaton tactics to lessen affects on health, costs, and damages. 
+    - Create a way to easily see how each industry affects others and how they can help one another.
+    - We could create an open source for citizens to gain access to when there are health and saftey issues in the area.
 
-With further time...
-
-We recommend...
+We recommend for COSA...
+- Looking into and Reconfiguring O3, NO2, and SO2 measurmet readings to.
+    - If they are not reading in ppm converting them to ppm
+    - If they are reading in ppm look into the sensors and why it is reading at such a deadly rate.
+- Reconfiguring the aler systems for air quality, flooding, and noise level.
+    - Code for this can be found in cosa_recommended.py
+- Adding features such as
+    - Air quality index for each particles individual reading as well as average daily readings.
+        - Code for this can be found in cosa_recommended.py (minus so2, no2, and o3)
+    - Sound level in layman's terms
+        - Code for this can be found in cosa_recommended.py
+    - Flood depth
+        - Code for this can be found in cosa_recommended.py
+    
+We recommend for SAWS...
+- Reformat your data set layout.
+    - Code for all of the following can be found in saws_recommended.py
+        - Put year-month in one column instead of the 48 you currently have
+        - add a datetime format rather than just 17-JAN
 
 
 </details>  
@@ -264,7 +283,13 @@ We recommend...
   <summary>Click to expand!</summary>
 
 ### 1. Getting started
-
+- Download:
+    - SAWS Residential Consumption Data 2 of 3
+    - COSA Medical Center Air Quality
+    - COSA Medical Center Flood
+    - COSA Medical Center Sound Level
+    - COSA Medical Center Weather
+- Limit the SAWS data to only include zipcode 78229 (the medical center)
     
 Good luck I hope you enjoy your project!
 
