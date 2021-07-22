@@ -175,11 +175,11 @@ def clean_flood():
     def flood_alert(c):
         if 0 < c['flood_depth_feet'] < 0.66667:
             return 'No Risk'
-        elif 10 < c['flood_depth_feet'] < 1.08333:
+        elif 0.66667 < c['flood_depth_feet'] < 1.08333:
             return 'Minor Risk'
-        elif 11 < c['flood_depth_feet'] < 2.16667:
+        elif 1.08333 < c['flood_depth_feet'] < 2.16667:
             return 'Moderate Risk'
-        elif 12 < c['flood_depth_feet']:
+        elif 2.16667 < c['flood_depth_feet']:
             return 'Major Risk !'
         else:
             return 'No Alert'
