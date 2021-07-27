@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # turn off pink warning boxes
 import warnings
@@ -143,6 +145,7 @@ def clean_air():
 #-----------------------------------------------------------------------------
 
 # Flood Cleaning
+
 # Flood Cleaning
 def clean_flood():
     '''Drops unneeded columns from the med center flooding df
@@ -172,11 +175,11 @@ def clean_flood():
     def flood_alert(c):
         if 0 < c['flood_depth_feet'] < 0.66667:
             return 'No Risk'
-        elif 10 < c['flood_depth_feet'] < 1.08333:
+        elif 0.66667 < c['flood_depth_feet'] < 1.08333:
             return 'Minor Risk'
-        elif 11 < c['flood_depth_feet'] < 2.16667:
+        elif 1.08333 < c['flood_depth_feet'] < 2.16667:
             return 'Moderate Risk'
-        elif 12 < c['flood_depth_feet']:
+        elif 2.16667 < c['flood_depth_feet']:
             return 'Major Risk !'
         else:
             return 'No Alert'
@@ -250,6 +253,7 @@ def wrangle_weather():
 #-----------------------------------------------------------------------------
 
 # Wrangle SAWS
+
 def fix_dates(saws):
     '''
     Function to fix year month column into
@@ -264,8 +268,16 @@ def wrangle_saws():
     '''This function will drop unnecessary columns, 
     create a 'location' using data acquired from 
     other columns, and melt the data to make month year column'''
-    # Reads the csv
-    saws = pd.read_csv('med_center_saws.csv')
+    # Reads the med center csv
+    med_saws = pd.read_csv('med_center_saws.csv')
+    # Reads the downtown csv
+    down_saws = pd.read_csv('downtown_saws.csv')
+    # make med center geo feature
+    med_saws['geographical'] = 'Medical Center'
+    # make downtown geo feature
+    down_saws['geographical'] = 'Downtown'
+    # create saws table using append
+    saws = med_saws.append(down_saws, ignore_index=True)
     # Removes NaN values from 'Prefix' and 'Suffix' column for concatenation in 'location'
     saws['Prefix'] = saws.Prefix.fillna(value = '')
     saws['Suffix'] = saws.Suffix.fillna(value = '')
@@ -274,17 +286,12 @@ def wrangle_saws():
     # Stripping any extra whitespace
     saws['location'] = saws.location.str.strip()
     saws = saws.drop(columns=['Unnamed: 0', 'Prefix', 'Suffix', 'Service Location'])
-    saws = saws.melt(id_vars=['Record #', 'ZIP Code', 'location'], 
+    saws = saws.melt(id_vars=['Record #', 'ZIP Code', 'location', 'geographical'], 
               var_name='Month & Year', value_name='Gallons Consumed')
     saws = saws.set_index('Record #')
     saws = saws.fillna(0)
     saws = saws.rename(columns={"ZIP Code": "zipcode", 'Month & Year':'year_month', 
                                 'Gallons Consumed':'gallons_consumed'})
-    # replace * with 0
-    saws = saws.replace(to_replace='*', value=0)
-    # change data type
-    saws['gallons_consumed'] = saws['gallons_consumed'].astype(int)
-
     return fix_dates(saws)
     
     
@@ -305,7 +312,7 @@ def wrangle_sound():
     # Converts to datetime
     df['DateTime'] = pd.to_datetime(df.DateTime)
     # make noise level feature
-    df['noise_level'] = pd.cut(df.NoiseLevel_db, 
+    df['how_loud'] = pd.cut(df.NoiseLevel_db, 
                                 bins = [-1,46,66,81,101,4000],
                                 labels = ['Normal', 'Moderate', 
                                           'Loud', "Very Loud", 
@@ -319,6 +326,7 @@ def wrangle_sound():
             return 'No Alert'
     df['sound_alert'] = df.apply(sound_alert, axis=1)
     return df
+
 
 #-----------------------------------------------------------------------------
 
@@ -435,7 +443,75 @@ def full_daily_COSA_dataframe():
 
 #-----------------------------------------------------------------------------
 
-# create air df based on 12 hr incriments
+#
+
+def show_saws():
+
+    '''
+    This function plots the SAWS dataset
+    by both streets and dates
+    '''
+    
+    # Pulls the data
+    saws_df = wrangle_saws()
+    # Creates a new column that has the date in a "year month" format that can be converted to a datetime object
+    saws_df['year_month'] = '20' + saws_df['year_month']
+    # Converts to datetime
+    saws_df['year_month'] = pd.to_datetime(saws_df['year_month'])
+    # Sets the index to the datetime object, then groups the data by month and drops zipcode (since they are all in the same one)
+    saws_month_year = saws_df.set_index('year_month').resample('M').mean().drop(columns = ['zipcode'])
+    # Creates a new column for labeling graphs with month and year
+    saws_month_year['Date'] = pd.to_datetime(saws_month_year.index)
+    # Truncates the 'Date' column into just month and year
+    saws_month_year['Mon_Year'] = saws_month_year['Date'].dt.strftime('%b-%Y')
+    # Creates a new dataframe for the mean of gallons used by street
+    saws_places = saws_df.groupby('location').mean()
+    # Drops zipcode column
+    saws_places = saws_places.drop(columns =['zipcode'])
+    # Creates a new dataframe for the sum of gallons used by street
+    saws_places_sum = saws_df.groupby('location').sum()
+    import calendar
+    # Creates dataframe for repesenting months by mean monthly water usage
+    saws_year_month_mean = saws_df.gallons_consumed.groupby(saws_df['year_month'].dt.month).mean()
+    saws_year_month_mean = pd.DataFrame(saws_year_month_mean)
+    saws_year_month_mean['month'] = saws_year_month_mean.index
+    # Labels numeric months into their respective shortened titles
+    saws_year_month_mean['month'] = saws_year_month_mean['month'].apply(lambda x: calendar.month_abbr[x])
+    
+    plt.subplots(4, 1, figsize=(24, 40), sharey=True)
+    plt.subplots_adjust(hspace=.5)
+    sns.set(style="darkgrid")
+        
+    plt.subplot(4, 1, 1)
+    plt.title('Average Monthly Water Use by Street')
+    plt.xticks(rotation = 90)
+    sns.barplot(data = saws_places, x = saws_places.index, y = 'gallons_consumed', palette = "viridis")
+    plt.xlabel('Street Name')
+    plt.ylabel('Average Monthly Gallons')
+    
+    plt.subplot(4, 1, 2)
+    plt.title('Sum of All Gallons Consumed by Street')
+    plt.xticks(rotation = 90)
+    sns.barplot(data = saws_places_sum, x = saws_places_sum.index, y = 'gallons_consumed', palette = "viridis")
+    plt.xlabel('Street Name')
+    plt.ylabel('Sum of Monthly Gallons')
+    
+    plt.subplot(4, 1, 3)
+    plt.title('Mean Property Consumption by Month Over 4 Year Period')
+    plt.xticks(rotation = 90)
+    sns.barplot(data = saws_month_year, x = saws_month_year['Mon_Year'], y = 'gallons_consumed', palette = "viridis")
+    plt.xlabel('Month')
+    plt.ylabel('Mean Property Consumption')
+    
+    plt.subplot(4, 1, 4)
+    plt.title('Mean Property Consumption by Month of Year')
+    sns.barplot(data = saws_year_month_mean, x = 'month', y = 'gallons_consumed', palette = "viridis")
+    plt.xlabel('Month')
+    plt.ylabel('Mean Property Consumption')
+    
+#-----------------------------------------------------------------------------
+
+# create air df based on 1 hr incriments
 def air_1hr_avg(air):
     '''Takes in air df and creates every 8 hour averages'''
     # duplicate datetime column
