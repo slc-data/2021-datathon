@@ -268,8 +268,16 @@ def wrangle_saws():
     '''This function will drop unnecessary columns, 
     create a 'location' using data acquired from 
     other columns, and melt the data to make month year column'''
-    # Reads the csv
-    saws = pd.read_csv('med_center_saws.csv')
+    # Reads the med center csv
+    med_saws = pd.read_csv('med_center_saws.csv')
+    # Reads the downtown csv
+    down_saws = pd.read_csv('downtown_saws.csv')
+    # make med center geo feature
+    med_saws['geographical'] = 'Medical Center'
+    # make downtown geo feature
+    down_saws['geographical'] = 'Downtown'
+    # create saws table using append
+    saws = med_saws.append(down_saws, ignore_index=True)
     # Removes NaN values from 'Prefix' and 'Suffix' column for concatenation in 'location'
     saws['Prefix'] = saws.Prefix.fillna(value = '')
     saws['Suffix'] = saws.Suffix.fillna(value = '')
@@ -278,17 +286,12 @@ def wrangle_saws():
     # Stripping any extra whitespace
     saws['location'] = saws.location.str.strip()
     saws = saws.drop(columns=['Unnamed: 0', 'Prefix', 'Suffix', 'Service Location'])
-    saws = saws.melt(id_vars=['Record #', 'ZIP Code', 'location'], 
+    saws = saws.melt(id_vars=['Record #', 'ZIP Code', 'location', 'geographical'], 
               var_name='Month & Year', value_name='Gallons Consumed')
     saws = saws.set_index('Record #')
     saws = saws.fillna(0)
     saws = saws.rename(columns={"ZIP Code": "zipcode", 'Month & Year':'year_month', 
                                 'Gallons Consumed':'gallons_consumed'})
-    # replace * with 0
-    saws = saws.replace(to_replace='*', value=0)
-    # change data type
-    saws['gallons_consumed'] = saws['gallons_consumed'].astype(int)
-
     return fix_dates(saws)
     
     
