@@ -18,7 +18,7 @@ ___
   <summary>Click to expand!</summary>
 
 ### Description
-- Using the SAWS data set we minimized it to only include the medical center zip code (78229). We will be using this focused SAWS data and using it in conjunction with the COSA Medical Center Air/Weather/Flood/Sound data set to see how the these affects water consumption in the area as well as one another. We will also be doing individual analysis on each data set. For the SAWS data set we aim to find the consumption based on the residential water consumption through the year. For the COSA Air Quality we want to see the quality throughout the days and weeks.
+- Using the SAWS data set we minimized it to only include the medical center zip code (78229) and the downtown zipcode (78205) as used for the street light sensor pilot. We will be using this focused SAWS data and using it in conjunction with the COSA Medical Center Air/Weather/Flood/Sound data set to see how the these affects water consumption in the area as well as one another. We will also be doing individual analysis on each data set. For the SAWS data set we aim to find the consumption based on the residential water consumption through the year. For the COSA Air Quality we want to see the quality throughout the days and weeks.
 
 ### Goals
 - Find out if there is a link between air quality and water consumption in the medical center
@@ -47,6 +47,7 @@ ___
 - What type of weather has the best air quality?
 - As air quality gets worse water consumption goes up.
 - Does air quality influence water consumption?
+- Can we find indications of "Heat Islands" effects in either medical center or downtown.
     
 ### Acquire Data:
 - Data sets were provided by SAWS and COSA to the 2021 Dataton hosts. All data sets can be found at:
@@ -61,6 +62,7 @@ ___
 - Drop columns
 - Replace nulls with 0
 - Concat Prefix, Suffix, and Service Location into one solid location.
+- Forcast 2021 water consumption using tableau
     
 **COSA**
 - Drop features
@@ -143,7 +145,7 @@ ___
 | location | Compass direction associated with street name (N, S, E, W, NE, NW, SE, SW or blank), name of street where residential type service account is located and type associated with street name (ST, RD, DR, CT, LOOP, PKWY, BLVD… etc.) | object |
 | year_month | Month and Year of observation | object |
 | gallons_consumed | number of gallons used | object |
-
+| geographical | Location in San Antonio | object |
     
 ### COSA Air
     
@@ -290,6 +292,7 @@ We recommend for SAWS...
     - COSA Medical Center Sound Level
     - COSA Medical Center Weather
 - Limit the SAWS data to only include zipcode 78229 (the medical center)
+- Forcast 2021 data using 2017, 2018, 2019, and 2020 water consumption.
     
 Good luck I hope you enjoy your project!
 
