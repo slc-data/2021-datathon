@@ -152,9 +152,8 @@ def clean_flood():
     Makes sure DateTime is in DateTime format'''
     # read csv
     flood = pd.read_csv('med_center_flood.csv')
-    # drop the colums
-    flood = flood.drop(columns=['LAT', 'LONG', 'Zone', 
-                          'Sensor_id', 'SensorModel', 
+    # drop the columns
+    flood = flood.drop(columns=['LAT', 'LONG', 'Zone',  
                           'SensorStatus', 'AlertTriggered', 
                           'Temp_C', 'Temp_F', 'Vendor'])
     # Set to date time format
@@ -165,25 +164,27 @@ def clean_flood():
                         "DistToDF_ft": "sensor_to_ground_feet",
                         "DistToDF_m": "sensor_to_ground_meters"})
     # replae -999 with 0
-    flood["sensor_to_ground_feet"].replace({-999:13.500656}, inplace=True)
+    flood["sensor_to_ground_feet"].replace({-999:13.5006561680}, inplace=True)
     flood["sensor_to_ground_meters"].replace({-999:4.115}, inplace=True)
-    flood = flood.replace(to_replace=-999, value=0)
+    
+    #flood = flood.replace(to_replace=-999, value=0)
     # create new features for flood depth
     flood['flood_depth_feet'] = flood.sensor_to_ground_feet - flood.sensor_to_water_feet
     flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters 
     # Create new alert
     def flood_alert(c):
-        if 0 < c['flood_depth_meters'] < 10:
+        if 0 < c['flood_depth_feet'] < 0.66667:
             return 'No Risk'
-        elif 10 < c['flood_depth_meters'] < 11:
+        elif 0.66667 < c['flood_depth_feet'] < 1.08333:
             return 'Minor Risk'
-        elif 11 < c['flood_depth_meters'] < 12:
+        elif 1.08333 < c['flood_depth_feet'] < 2.16667:
             return 'Moderate Risk'
-        elif 12 < c['flood_depth_meters']:
-            return 'Major Risk Risk'
+        elif 2.16667 < c['flood_depth_feet']:
+            return 'Major Risk !'
         else:
             return 'No Alert'
     flood['flood_alert'] = flood.apply(flood_alert, axis=1)
+    flood = flood[(flood.sensor_to_water_feet != -999)]
     # return new df
     return flood
 
@@ -267,8 +268,16 @@ def wrangle_saws():
     '''This function will drop unnecessary columns, 
     create a 'location' using data acquired from 
     other columns, and melt the data to make month year column'''
-    # Reads the csv
-    saws = pd.read_csv('med_center_saws.csv')
+    # Reads the med center csv
+    med_saws = pd.read_csv('med_center_saws.csv')
+    # Reads the downtown csv
+    down_saws = pd.read_csv('downtown_saws.csv')
+    # make med center geo feature
+    med_saws['geographical'] = 'Medical Center'
+    # make downtown geo feature
+    down_saws['geographical'] = 'Downtown'
+    # create saws table using append
+    saws = med_saws.append(down_saws, ignore_index=True)
     # Removes NaN values from 'Prefix' and 'Suffix' column for concatenation in 'location'
     saws['Prefix'] = saws.Prefix.fillna(value = '')
     saws['Suffix'] = saws.Suffix.fillna(value = '')
@@ -277,17 +286,12 @@ def wrangle_saws():
     # Stripping any extra whitespace
     saws['location'] = saws.location.str.strip()
     saws = saws.drop(columns=['Unnamed: 0', 'Prefix', 'Suffix', 'Service Location'])
-    saws = saws.melt(id_vars=['Record #', 'ZIP Code', 'location'], 
+    saws = saws.melt(id_vars=['Record #', 'ZIP Code', 'location', 'geographical'], 
               var_name='Month & Year', value_name='Gallons Consumed')
     saws = saws.set_index('Record #')
     saws = saws.fillna(0)
     saws = saws.rename(columns={"ZIP Code": "zipcode", 'Month & Year':'year_month', 
                                 'Gallons Consumed':'gallons_consumed'})
-    # replace * with 0
-    saws = saws.replace(to_replace='*', value=0)
-    # change data type
-    saws['gallons_consumed'] = saws['gallons_consumed'].astype(int)
-
     return fix_dates(saws)
     
     
@@ -308,7 +312,7 @@ def wrangle_sound():
     # Converts to datetime
     df['DateTime'] = pd.to_datetime(df.DateTime)
     # make noise level feature
-    df['noise_alert'] = pd.cut(df.NoiseLevel_db, 
+    df['how_loud'] = pd.cut(df.NoiseLevel_db, 
                                 bins = [-1,46,66,81,101,4000],
                                 labels = ['Normal', 'Moderate', 
                                           'Loud', "Very Loud", 
@@ -504,3 +508,353 @@ def show_saws():
     sns.barplot(data = saws_year_month_mean, x = 'month', y = 'gallons_consumed', palette = "viridis")
     plt.xlabel('Month')
     plt.ylabel('Mean Property Consumption')
+    
+#-----------------------------------------------------------------------------
+
+# create air df based on 1 hr incriments
+def air_1hr_avg(air):
+    '''Takes in air df and creates every 8 hour averages'''
+    # duplicate datetime column
+    air['round_1hr'] = air['datetime']
+    # round to every 8 hours
+    air['round_1hr'] = air['round_1hr'].dt.round('60min')
+    # create mew df based on the rouned time
+    average_1hr = air.groupby('round_1hr', as_index=False).mean()
+    # Create AQI for CO
+    average_1hr['AQI_CO'] = pd.cut(average_1hr.CO, 
+                                bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    # Create AQI for Pm2_5
+    average_1hr['AQI_pm2_5'] = pd.cut(average_1hr.Pm2_5, 
+                                    bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # Create AQI for Pm10
+    average_1hr['AQI_pm10'] = pd.cut(average_1hr.Pm10, 
+                                    bins = [-1,55,154,255,355,425,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # create AQI for SO2
+    average_1hr['AQI_SO2'] = pd.cut(average_1hr.SO2, 
+                                    bins = [-1,0.0359,0.0759,0.1859,0.3049,0.6049,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # create AQI for NO2
+    average_1hr['AQI_NO2'] = pd.cut(average_1hr.NO2, 
+                                    bins = [-1,0.0539,0.1009,0.3609,0.6499,1.2499,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # create AQI for O3
+    average_1hr['AQI_O3'] = pd.cut(average_1hr.O3, 
+                                    bins = [-1,0.06259,0.1259,0.1649,0.2049,0.4049,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # rename the new date time column
+    average_1hr = average_1hr.rename(columns={"round_1hr": "datetime"})
+    # Create air alerts
+    def unhealthy_air_alert(c):
+        if c['Pm2_5'] > 55.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 254.9:
+            return 'Pm10'
+        elif c['CO'] > 12.4:
+            return 'CO'
+        elif c['SO2'] > 0.1859:
+            return 'SO2'
+        elif c['O3'] > 0.1649:
+            return 'O3'
+        elif c['NO2'] > 0.3609:
+            return 'NO2'
+        else:
+            return 'No Alert'
+    average_1hr['unhealthy_alert'] = average_1hr.apply(unhealthy_air_alert, axis=1)
+    # create sensitive HYPOTHTICAL Alert system
+        # hypothetical alerts are based on IF everything is reading in PPM
+    def sensitive_air_alert(c):
+        if c['Pm2_5'] > 34.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 154.9:
+            return 'Pm10'
+        elif c['CO'] > 9.4:
+            return 'CO'
+        elif c['SO2'] > 0.0759:
+            return 'SO2'
+        elif c['O3'] > 0.124:
+            return 'O3'
+        elif c['NO2'] > 0.1009:
+            return 'NO2'
+        else:
+            return 'No Alert'
+
+    average_1hr['sensitive_alert'] = average_1hr.apply(sensitive_air_alert, axis=1)
+    return average_1hr
+
+#-----------------------------------------------------------------------------
+# air df in 8 hour incriments
+def air_8hr_avg(air):
+    '''Takes in air df and creates every 8 hour averages'''
+    # duplicate datetime column
+    air['round_8hr'] = air['datetime']
+    # round to every 8 hours
+    air['round_8hr'] = air['round_8hr'].dt.round('480min')
+    # create mew df based on the rouned time
+    average_8hr = air.groupby('round_8hr', as_index=False).mean()
+    # Create AQI for CO
+    average_8hr['AQI_CO'] = pd.cut(average_8hr.CO, 
+                                bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    # Create AQI for Pm2_5
+    average_8hr['AQI_pm2_5'] = pd.cut(average_8hr.Pm2_5, 
+                                    bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # Create AQI for Pm10
+    average_8hr['AQI_pm10'] = pd.cut(average_8hr.Pm10, 
+                                    bins = [-1,55,154,255,355,425,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # create AQI for SO2
+    average_8hr['AQI_SO2'] = pd.cut(average_8hr.SO2, 
+                                    bins = [-1,0.0359,0.0759,0.1859,0.3049,0.6049,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # create AQI for NO2
+    average_8hr['AQI_NO2'] = pd.cut(average_8hr.NO2, 
+                                    bins = [-1,0.0539,0.1009,0.3609,0.6499,1.2499,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # create AQI for O3
+    average_8hr['AQI_O3'] = pd.cut(average_8hr.O3, 
+                                    bins = [-1,0.0549,0.0709,0.0859,0.1059,0.2009,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # rename the new date time column
+    average_8hr = average_8hr.rename(columns={"round_8hr": "datetime"})
+    # Create air alerts
+    def unhealthy_air_alert(c):
+        if c['Pm2_5'] > 55.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 254.9:
+            return 'Pm10'
+        elif c['CO'] > 12.4:
+            return 'CO'
+        elif c['SO2'] > 0.1859:
+            return 'SO2'
+        elif c['O3'] > 0.1649:
+            return 'O3'
+        elif c['NO2'] > 0.3609:
+            return 'NO2'
+        else:
+            return 'No Alert'
+    # Apply alert
+    average_8hr['unhealthy_alert'] = average_8hr.apply(unhealthy_air_alert, axis=1)
+    # create sensitive HYPOTHTICAL Alert system
+        # hypothetical alerts are based on IF everything is reading in PPM
+    def sensitive_air_alert(c):
+        if c['Pm2_5'] > 34.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 154.9:
+            return 'Pm10'
+        elif c['CO'] > 9.4:
+            return 'CO'
+        elif c['SO2'] > 0.0759:
+            return 'SO2'
+        elif c['O3'] > 0.124:
+            return 'O3'
+        elif c['NO2'] > 0.1009:
+            return 'NO2'
+        else:
+            return 'No Alert'
+    # apply alert
+    average_8hr['sensitive_alert'] = average_8hr.apply(sensitive_air_alert, axis=1)
+    return average_8hr
+
+#-----------------------------------------------------------------------------
+
+# create air df based on 12 hr incriments
+def air_12hr_avg(air):
+    '''Takes in air df and creates every 8 hour averages'''
+    # duplicate datetime column
+    air['round_12hr'] = air['datetime']
+    # round to every 8 hours
+    air['round_12hr'] = air['round_12hr'].dt.round('720min')
+    # create mew df based on the rouned time
+    average_12hr = air.groupby('round_12hr', as_index=False).mean()
+    # Create AQI for CO
+    average_12hr['AQI_CO'] = pd.cut(average_12hr.CO, 
+                                bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    # Create AQI for Pm2_5
+    average_12hr['AQI_pm2_5'] = pd.cut(average_12hr.Pm2_5, 
+                                    bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # Create AQI for Pm10
+    average_12hr['AQI_pm10'] = pd.cut(average_12hr.Pm10, 
+                                    bins = [-1,55,154,255,355,425,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # create AQI for SO2
+    average_12hr['AQI_SO2'] = pd.cut(average_12hr.SO2, 
+                                    bins = [-1,0.0359,0.0759,0.1859,0.3049,0.6049,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # create AQI for NO2
+    average_12hr['AQI_NO2'] = pd.cut(average_12hr.NO2, 
+                                    bins = [-1,0.0539,0.1009,0.3609,0.6499,1.2499,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # create AQI for O3
+    average_12hr['AQI_O3'] = pd.cut(average_12hr.O3, 
+                                    bins = [-1,0.0549,0.0709,0.0859,0.1059,0.2009,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # rename the new date time column
+    average_12hr = average_12hr.rename(columns={"round_12hr": "datetime"})
+    # Create air alerts
+    def unhealthy_air_alert(c):
+        if c['Pm2_5'] > 55.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 254.9:
+            return 'Pm10'
+        elif c['CO'] > 12.4:
+            return 'CO'
+        elif c['SO2'] > 0.1859:
+            return 'SO2'
+        elif c['O3'] > 0.1649:
+            return 'O3'
+        elif c['NO2'] > 0.3609:
+            return 'NO2'
+        else:
+            return 'No Alert'
+    average_12hr['unhealthy_alert'] = average_12hr.apply(unhealthy_air_alert, axis=1)
+    # create sensitive HYPOTHTICAL Alert system
+        # hypothetical alerts are based on IF everything is reading in PPM
+    def sensitive_air_alert(c):
+        if c['Pm2_5'] > 34.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 154.9:
+            return 'Pm10'
+        elif c['CO'] > 9.4:
+            return 'CO'
+        elif c['SO2'] > 0.0759:
+            return 'SO2'
+        elif c['O3'] > 0.124:
+            return 'O3'
+        elif c['NO2'] > 0.1009:
+            return 'NO2'
+        else:
+            return 'No Alert'
+
+    average_12hr['sensitive_alert'] = average_12hr.apply(sensitive_air_alert, axis=1)
+    return average_12hr
+
+#-----------------------------------------------------------------------------
+
+# create air df based on 24 hr incriments
+def air_24hr_avg(air):
+    '''Takes in air df and creates every 8 hour averages'''
+    # duplicate datetime column
+    air['round_24hr'] = air['datetime']
+    # round to every 8 hours
+    air['round_24hr'] = air['round_24hr'].dt.round('1440min')
+    # create mew df based on the rouned time
+    average_24hr = air.groupby('round_24hr', as_index=False).mean()
+    # Create AQI for CO
+    average_24hr['AQI_CO'] = pd.cut(average_24hr.CO, 
+                                bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    # Create AQI for Pm2_5
+    average_24hr['AQI_pm2_5'] = pd.cut(average_24hr.Pm2_5, 
+                                    bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # Create AQI for Pm10
+    average_24hr['AQI_pm10'] = pd.cut(average_24hr.Pm10, 
+                                    bins = [-1,55,154,255,355,425,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # create AQI for SO2
+    average_24hr['AQI_SO2'] = pd.cut(average_24hr.SO2, 
+                                    bins = [-1,0.0359,0.0759,0.1859,0.3049,0.6049,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # create AQI for NO2
+    average_24hr['AQI_NO2'] = pd.cut(average_24hr.NO2, 
+                                    bins = [-1,0.0539,0.1009,0.3609,0.6499,1.2499,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # create AQI for O3
+    average_24hr['AQI_O3'] = pd.cut(average_24hr.O3, 
+                                    bins = [-1,0.0549,0.0709,0.0859,0.1059,0.2009,4000],
+                                    labels = ['Good', 'Moderate', 
+                                              'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                              "Very Unhealthy", 'Hazardous'])
+    # rename the new date time column
+    average_24hr = average_24hr.rename(columns={"round_24hr": "datetime"})
+    # Create air alerts
+    def unhealthy_air_alert(c):
+        if c['Pm2_5'] > 55.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 254.9:
+            return 'Pm10'
+        elif c['CO'] > 12.4:
+            return 'CO'
+        elif c['SO2'] > 0.1859:
+            return 'SO2'
+        elif c['O3'] > 0.1649:
+            return 'O3'
+        elif c['NO2'] > 0.3609:
+            return 'NO2'
+        else:
+            return 'No Alert'
+    average_24hr['unhealthy_alert'] = average_24hr.apply(unhealthy_air_alert, axis=1)
+    # create sensitive HYPOTHTICAL Alert system
+        # hypothetical alerts are based on IF everything is reading in PPM
+    def sensitive_air_alert(c):
+        if c['Pm2_5'] > 34.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 154.9:
+            return 'Pm10'
+        elif c['CO'] > 9.4:
+            return 'CO'
+        elif c['SO2'] > 0.0759:
+            return 'SO2'
+        elif c['O3'] > 0.124:
+            return 'O3'
+        elif c['NO2'] > 0.1009:
+            return 'NO2'
+        else:
+            return 'No Alert'
+
+    average_24hr['sensitive_alert'] = average_24hr.apply(sensitive_air_alert, axis=1)
+    return average_24hr
+
+#-----------------------------------------------------------------------------
