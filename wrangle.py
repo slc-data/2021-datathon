@@ -13,75 +13,72 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 #-----------------------------------------------------------------------------
 
-# Air Quality Cleaning
-def clean_air():
+def clean_air(df):
     '''Drops unneeded columns from the air quality df
     then handles the nulls in alert triggered column
     set to date time format'''
-    # read the csv
-    air = pd.read_csv('med_center_air.csv')
     # drop the colums
-    air = air.drop(columns=['LAT', 'LONG', 'Zone', 
+    df = df.drop(columns=['LAT', 'LONG',
                             'Sensor_id', 'SensorModel', 
                             'SensorStatus', 'Vendor'])
     # replace nulls in ALertTriggered to None
-    air.fillna("None", inplace = True)
+    df.fillna("None", inplace = True)
     # set to date time format
-    air.DateTime = pd.to_datetime(air.DateTime)
+    df.DateTime = pd.to_datetime(df.DateTime)
     # rename features
-    air = air.rename(columns={"DateTime": "datetime",
+    df = df.rename(columns={"DateTime": "datetime",
                               "AlertTriggered":"alert_triggered"})
-    air = air.replace(to_replace=-999, value=0)
+    df = df.replace(to_replace=-999, value=0)
     # create time series features
-    air['dates'] = pd.to_datetime(air['datetime']).dt.date
-    air['time'] = pd.to_datetime(air['datetime']).dt.time
-    air['hour'] = pd.to_datetime(air['datetime']).dt.hour
-    air['weekday'] = pd.to_datetime(air['datetime']).dt.weekday
+    df['dates'] = pd.to_datetime(df['datetime']).dt.date
+    df['time'] = pd.to_datetime(df['datetime']).dt.time
+    df['hour'] = pd.to_datetime(df['datetime']).dt.hour
+    df['weekday'] = pd.to_datetime(df['datetime']).dt.weekday
     # make all CO bins
-    air['AQI_CO'] = pd.cut(air.CO, 
+    df['AQI_CO'] = pd.cut(df.CO, 
                             bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
                             labels = ['Good', 'Moderate', 
                                       'Unhealthy for Sensitive Groups', "Unhealthy", 
                                       "Very Unhealthy", 'Hazardous'])
     
-    CO_24hr = air.groupby('dates', as_index=False)['CO'].mean()
+    CO_24hr = df.groupby('dates', as_index=False)['CO'].mean()
     CO_24hr = CO_24hr.rename(columns={'CO':'CO_24hr'})
-    air = air.merge(CO_24hr, on = 'dates', how ='left')
-    air['AQI_CO_24hr'] = pd.cut(air.CO_24hr, 
+    df = df.merge(CO_24hr, on = 'dates', how ='left')
+    df['AQI_CO_24hr'] = pd.cut(df.CO_24hr, 
                                 bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
                                 labels = ['Good', 'Moderate', 
                                           'Unhealthy for Sensitive Groups', "Unhealthy", 
                                           "Very Unhealthy", 'Hazardous'])
     
-    air['AQI_pm2_5'] = pd.cut(air.Pm2_5, 
+    df['AQI_pm2_5'] = pd.cut(df.Pm2_5, 
                                 bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
                                 labels = ['Good', 'Moderate', 
                                           'Unhealthy for Sensitive Groups', "Unhealthy", 
                                           "Very Unhealthy", 'Hazardous'])
-    pm_25_24hr = air.groupby('dates', as_index=False)['Pm2_5'].mean()
+    pm_25_24hr = df.groupby('dates', as_index=False)['Pm2_5'].mean()
     pm_25_24hr = pm_25_24hr.rename(columns={'Pm2_5':'Pm_25_24hr'})
-    air = air.merge(pm_25_24hr, on = 'dates', how ='left')
-    air['AQI_pm_25_24hr'] = pd.cut(air.Pm_25_24hr, 
+    df = df.merge(pm_25_24hr, on = 'dates', how ='left')
+    df['AQI_pm_25_24hr'] = pd.cut(df.Pm_25_24hr, 
                                 bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
                                 labels = ['Good', 'Moderate', 
                                           'Unhealthy for Sensitive Groups', "Unhealthy", 
                                           "Very Unhealthy", 'Hazardous'])
     
-    air['AQI_pm10'] = pd.cut(air.Pm10, 
+    df['AQI_pm10'] = pd.cut(df.Pm10, 
                                 bins = [-1,55,154,255,355,425,4000],
                                 labels = ['Good', 'Moderate', 
                                           'Unhealthy for Sensitive Groups', "Unhealthy", 
                                           "Very Unhealthy", 'Hazardous'])
-    pm_10_24hr = air.groupby('dates', as_index=False)['Pm10'].mean()
+    pm_10_24hr = df.groupby('dates', as_index=False)['Pm10'].mean()
     pm_10_24hr = pm_10_24hr.rename(columns={'Pm10':'Pm_10_24hr'})
-    air = air.merge(pm_10_24hr, on = 'dates', how ='left')
-    air['AQI_pm10_24hr'] = pd.cut(air.Pm_10_24hr, 
+    df = df.merge(pm_10_24hr, on = 'dates', how ='left')
+    df['AQI_pm10_24hr'] = pd.cut(df.Pm_10_24hr, 
                                 bins = [-1,55,154,255,355,425,4000],
                                 labels = ['Good', 'Moderate', 
                                           'Unhealthy for Sensitive Groups', "Unhealthy", 
                                           "Very Unhealthy", 'Hazardous'])
     # create new unhealthy alert system
-    def air_alert(c):
+    def df_alert(c):
         if c['Pm2_5'] > 55.4:
             return 'Pm2_5'
         elif c['Pm10'] > 254.9:
@@ -90,9 +87,9 @@ def clean_air():
             return 'CO'
         else:
             return 'No Alert'
-    air['unhealthy_alert'] = air.apply(air_alert, axis=1)
+    df['unhealthy_alert'] = df.apply(df_alert, axis=1)
     # create new sensitive alert system
-    def sensitive_air_alert(c):
+    def sensitive_df_alert(c):
         if c['Pm2_5'] > 34.4:
             return 'Pm2_5'
         elif c['Pm10'] > 154.9:
@@ -101,10 +98,10 @@ def clean_air():
             return 'CO'
         else:
             return 'No Alert'
-    air['sensitive_alert'] = air.apply(sensitive_air_alert, axis=1)
+    df['sensitive_alert'] = df.apply(sensitive_df_alert, axis=1)
     # create unhealthy HYPOTHTICAL Alert system
         # hypothetical alerts are based on IF everything is reading in PPM
-    def hypo_air_alert(c):
+    def hypo_df_alert(c):
         if c['Pm2_5'] > 55.4:
             return 'Pm2_5'
         elif c['Pm10'] > 254.9:
@@ -119,10 +116,10 @@ def clean_air():
             return 'NO2'
         else:
             return 'No Alert'
-    air['hypothetical_unhealthy_alert'] = air.apply(hypo_air_alert, axis=1)
+    df['hypothetical_unhealthy_alert'] = df.apply(hypo_df_alert, axis=1)
     # create sensitive HYPOTHTICAL Alert system
         # hypothetical alerts are based on IF everything is reading in PPM
-    def sensitive_air_alert(c):
+    def sensitive_df_alert(c):
         if c['Pm2_5'] > 34.4:
             return 'Pm2_5'
         elif c['Pm10'] > 154.9:
@@ -138,39 +135,35 @@ def clean_air():
         else:
             return 'No Alert'
 
-    air['hypothetical_sensitive_alert'] = air.apply(sensitive_air_alert, axis=1)
+    df['hypothetical_sensitive_alert'] = df.apply(sensitive_df_alert, axis=1)
     # return new df
-    return air
-
+    return df
 #-----------------------------------------------------------------------------
 
 # Flood Cleaning
 
-# Flood Cleaning
-def clean_flood():
+def clean_flood(df):
     '''Drops unneeded columns from the med center flooding df
     Makes sure DateTime is in DateTime format'''
-    # read csv
-    flood = pd.read_csv('med_center_flood.csv')
     # drop the columns
-    flood = flood.drop(columns=['LAT', 'LONG', 'Zone',  
+    df = df.drop(columns=['LAT', 'LONG', 'Zone',  
                           'SensorStatus', 'AlertTriggered', 
                           'Temp_C', 'Temp_F', 'Vendor'])
     # Set to date time format
-    flood.DateTime = pd.to_datetime(flood.DateTime)
-    flood = flood.rename(columns={"DateTime": "datetime", 
+    flood.DateTime = pd.to_datetime(df.DateTime)
+    df = df.rename(columns={"DateTime": "datetime", 
                         "DistToWL_ft": "sensor_to_water_feet", 
                         "DistToWL_m": "sensor_to_water_meters", 
                         "DistToDF_ft": "sensor_to_ground_feet",
                         "DistToDF_m": "sensor_to_ground_meters"})
     # replae -999 with 0
-    flood["sensor_to_ground_feet"].replace({-999:13.5006561680}, inplace=True)
-    flood["sensor_to_ground_meters"].replace({-999:4.115}, inplace=True)
+    df["sensor_to_ground_feet"].replace({-999:13.5006561680}, inplace=True)
+    df["sensor_to_ground_meters"].replace({-999:4.115}, inplace=True)
     
     #flood = flood.replace(to_replace=-999, value=0)
     # create new features for flood depth
-    flood['flood_depth_feet'] = flood.sensor_to_ground_feet - flood.sensor_to_water_feet
-    flood['flood_depth_meters'] = flood.sensor_to_ground_meters - flood.sensor_to_water_meters 
+    df['flood_depth_feet'] = df.sensor_to_ground_feet - df.sensor_to_water_feet
+    df['flood_depth_meters'] = df.sensor_to_ground_meters - df.sensor_to_water_meters 
     # Create new alert
     def flood_alert(c):
         if 0 < c['flood_depth_feet'] < 0.66667:
@@ -183,15 +176,14 @@ def clean_flood():
             return 'Major Risk !'
         else:
             return 'No Alert'
-    flood['flood_alert'] = flood.apply(flood_alert, axis=1)
-    flood = flood[(flood.sensor_to_water_feet != -999)]
+    df['flood_alert'] = df.apply(flood_alert, axis=1)
+    df = df[(df.sensor_to_water_feet != -999)]
     # return new df
-    return flood
-
+    return df
 #-----------------------------------------------------------------------------
 
 # Weather Cleaning
-def wrangle_weather():
+def wrangle_weather(df):
     '''
     This function will drop unneccessary columns, 
     change datetime to a pandas datetime datatype,
@@ -199,7 +191,6 @@ def wrangle_weather():
     a clean dataframe.  
     '''
     #read csv and turn into pandas dataframe
-    weather = pd.read_csv('med_center_weather.csv')
     sa_weather = pd.read_csv('SA_weather.csv')
     # concat sa date and time
     sa_weather['Date_Time'] = sa_weather['Date'] + ' ' + sa_weather['Time']
@@ -218,7 +209,7 @@ def wrangle_weather():
                             "Wind": "wind",
                             "Visibility": "visibility"})
     #drop columns we will not be using
-    weather.drop(columns=[
+    df.drop(columns=[
     'Sensor_id', 
     'Vendor', 
     'SensorModel', 
@@ -228,7 +219,7 @@ def wrangle_weather():
     'AlertTriggered', 
     'SensorStatus'], inplace=True)
     #rename columns to be more readable
-    weather = weather.rename(columns={"DateTime": "datetime", 
+    df = df.rename(columns={"DateTime": "datetime", 
                             "Temp_C": "celsius", 
                             "Temp_F": "farenheit", 
                             "Humidity": "humidity",
@@ -236,20 +227,26 @@ def wrangle_weather():
                             "DewPoint_F": "dewpoint_farenheit",
                             "Pressure_Pa": "pressure"})
     #change datetime to pandas datetime object
-    weather.datetime = pd.to_datetime(weather.datetime)
+    df.datetime = pd.to_datetime(df.datetime)
     # round to hour
-    weather['DateTime'] = weather['datetime'].dt.round('60min')
+    df['DateTime'] = df['datetime'].dt.round('60min')
     # set index
-    weather = weather.set_index('DateTime')
+    df = df.set_index('DateTime')
     # join the 2 df's
-    weather = weather.join(sa_weather, how='right')
+    df = df.join(sa_weather, how='right')
     # repalce -999
-    weather = weather.replace(to_replace=-999, value=0)
+    df = df.replace(to_replace=-999, value=0)
     # drop nulls
-    weather.dropna(inplace = True)
+    df.dropna(inplace = True)
+    # adjust wind and visibility to be int
+    df['wind'] = df.wind.replace(to_replace=" NULL",value=0)
+    df['wind'] = df['wind'].str.extract('(\d+)', expand=False)
+    df['visibility'] = df['visibility'].str.extract('(\d+)', expand=False)
+    df["wind"].fillna(0, inplace = True)
+    df['wind'] = df['wind'].astype(int)
+    df['visibility'] = df['visibility'].astype(int)
     #return clean weather df
-    return weather
-
+    return df
 #-----------------------------------------------------------------------------
 
 # Wrangle SAWS
@@ -298,14 +295,12 @@ def wrangle_saws():
 #-----------------------------------------------------------------------------
 
 # Sound Cleaning
-def wrangle_sound():
+def wrangle_sound(df):
     '''
     This function drops unnecessary columns and
     converts the 'DateTime' column to a datetime 
     object
     '''
-
-    df = pd.read_csv('med_center_sound.csv')
     # Drops unnecessary columns
     df = df.drop(columns = ['SensorStatus', 'AlertTriggered', 'Zone', 'LONG', 
                             'LAT', 'SensorModel', 'Vendor', 'Sensor_id'])
@@ -326,8 +321,6 @@ def wrangle_sound():
             return 'No Alert'
     df['sound_alert'] = df.apply(sound_alert, axis=1)
     return df
-
-
 #-----------------------------------------------------------------------------
 
 # Split the Data into Tain, Test, and Validate.
@@ -341,38 +334,6 @@ def split_data(df):
     train, validate = train_test_split(train_validate, test_size=.3, 
                                        random_state=1234)
     return train, validate, test
-
-#-----------------------------------------------------------------------------
-
-# Split the data into X_train, y_train, X_vlaidate, y_validate, X_train, and y_train
-def split_train_validate_test(train, validate, test):
-    ''' This function takes in train, validate and test
-    splits them into X and y versions
-    returns X_train, X_validate, X_test, y_train, y_validate, y_test'''
-    X_train = train.drop(columns = ['level_of_success'])
-    y_train = pd.DataFrame(train.level_of_success)
-    X_validate = validate.drop(columns=['level_of_success'])
-    y_validate = pd.DataFrame(validate.level_of_success)
-    X_test = test.drop(columns=['level_of_success'])
-    y_test = pd.DataFrame(test.level_of_success)
-    return X_train, X_validate, X_test, y_train, y_validate, y_test
-
-#-----------------------------------------------------------------------------
-
-# Scale the Data
-def scale_my_data(train, validate, test):
-    scale_columns = []
-    scaler = MinMaxScaler()
-    scaler.fit(train[scale_columns])
-    train_scaled = scaler.transform(train[scale_columns])
-    validate_scaled = scaler.transform(validate[scale_columns])
-    test_scaled = scaler.transform(test[scale_columns])
-    #turn into dataframe
-    train_scaled = pd.DataFrame(train_scaled)
-    validate_scaled = pd.DataFrame(validate_scaled)
-    test_scaled = pd.DataFrame(test_scaled)
-    
-    return train_scaled, validate_scaled, test_scaled
 
 #-----------------------------------------------------------------------------
 
@@ -512,14 +473,14 @@ def show_saws():
 #-----------------------------------------------------------------------------
 
 # create air df based on 1 hr incriments
-def air_1hr_avg(air):
+def air_1hr_avg(df):
     '''Takes in air df and creates every 8 hour averages'''
     # duplicate datetime column
-    air['round_1hr'] = air['datetime']
+    df['round_1hr'] = df['datetime']
     # round to every 8 hours
-    air['round_1hr'] = air['round_1hr'].dt.round('60min')
+    df['round_1hr'] = df['round_1hr'].dt.round('60min')
     # create mew df based on the rouned time
-    average_1hr = air.groupby('round_1hr', as_index=False).mean()
+    average_1hr = df.groupby('round_1hr', as_index=False).mean()
     # Create AQI for CO
     average_1hr['AQI_CO'] = pd.cut(average_1hr.CO, 
                                 bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
@@ -558,7 +519,7 @@ def air_1hr_avg(air):
                                               "Very Unhealthy", 'Hazardous'])
     # rename the new date time column
     average_1hr = average_1hr.rename(columns={"round_1hr": "datetime"})
-    # Create air alerts
+    # Create df alerts
     def unhealthy_air_alert(c):
         if c['Pm2_5'] > 55.4:
             return 'Pm2_5'
@@ -574,7 +535,7 @@ def air_1hr_avg(air):
             return 'NO2'
         else:
             return 'No Alert'
-    average_1hr['unhealthy_alert'] = average_1hr.apply(unhealthy_air_alert, axis=1)
+    average_1hr['unhealthy_alert'] = average_1hr.apply(unhealthy_df_alert, axis=1)
     # create sensitive HYPOTHTICAL Alert system
         # hypothetical alerts are based on IF everything is reading in PPM
     def sensitive_air_alert(c):
@@ -598,14 +559,14 @@ def air_1hr_avg(air):
 
 #-----------------------------------------------------------------------------
 # air df in 8 hour incriments
-def air_8hr_avg(air):
-    '''Takes in air df and creates every 8 hour averages'''
+def air_8hr_avg(df):
+    '''Takes in df df and creates every 8 hour averages'''
     # duplicate datetime column
-    air['round_8hr'] = air['datetime']
+    df['round_8hr'] = df['datetime']
     # round to every 8 hours
-    air['round_8hr'] = air['round_8hr'].dt.round('480min')
+    df['round_8hr'] = df['round_8hr'].dt.round('480min')
     # create mew df based on the rouned time
-    average_8hr = air.groupby('round_8hr', as_index=False).mean()
+    average_8hr = df.groupby('round_8hr', as_index=False).mean()
     # Create AQI for CO
     average_8hr['AQI_CO'] = pd.cut(average_8hr.CO, 
                                 bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
@@ -644,7 +605,7 @@ def air_8hr_avg(air):
                                               "Very Unhealthy", 'Hazardous'])
     # rename the new date time column
     average_8hr = average_8hr.rename(columns={"round_8hr": "datetime"})
-    # Create air alerts
+    # Create df alerts
     def unhealthy_air_alert(c):
         if c['Pm2_5'] > 55.4:
             return 'Pm2_5'
@@ -661,7 +622,7 @@ def air_8hr_avg(air):
         else:
             return 'No Alert'
     # Apply alert
-    average_8hr['unhealthy_alert'] = average_8hr.apply(unhealthy_air_alert, axis=1)
+    average_8hr['unhealthy_alert'] = average_8hr.apply(unhealthy_df_alert, axis=1)
     # create sensitive HYPOTHTICAL Alert system
         # hypothetical alerts are based on IF everything is reading in PPM
     def sensitive_air_alert(c):
@@ -686,14 +647,14 @@ def air_8hr_avg(air):
 #-----------------------------------------------------------------------------
 
 # create air df based on 12 hr incriments
-def air_12hr_avg(air):
-    '''Takes in air df and creates every 8 hour averages'''
+def air_12hr_avg(df):
+    '''Takes in df df and creates every 8 hour averages'''
     # duplicate datetime column
-    air['round_12hr'] = air['datetime']
+    df['round_12hr'] = df['datetime']
     # round to every 8 hours
-    air['round_12hr'] = air['round_12hr'].dt.round('720min')
+    df['round_12hr'] = df['round_12hr'].dt.round('720min')
     # create mew df based on the rouned time
-    average_12hr = air.groupby('round_12hr', as_index=False).mean()
+    average_12hr = df.groupby('round_12hr', as_index=False).mean()
     # Create AQI for CO
     average_12hr['AQI_CO'] = pd.cut(average_12hr.CO, 
                                 bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
@@ -773,14 +734,14 @@ def air_12hr_avg(air):
 #-----------------------------------------------------------------------------
 
 # create air df based on 24 hr incriments
-def air_24hr_avg(air):
-    '''Takes in air df and creates every 8 hour averages'''
+def air_24hr_avg(df):
+    '''Takes in df df and creates every 8 hour averages'''
     # duplicate datetime column
-    air['round_24hr'] = air['datetime']
+    df['round_24hr'] = df['datetime']
     # round to every 8 hours
-    air['round_24hr'] = air['round_24hr'].dt.round('1440min')
+    df['round_24hr'] = df['round_24hr'].dt.round('1440min')
     # create mew df based on the rouned time
-    average_24hr = air.groupby('round_24hr', as_index=False).mean()
+    average_24hr = df.groupby('round_24hr', as_index=False).mean()
     # Create AQI for CO
     average_24hr['AQI_CO'] = pd.cut(average_24hr.CO, 
                                 bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
@@ -856,5 +817,4 @@ def air_24hr_avg(air):
 
     average_24hr['sensitive_alert'] = average_24hr.apply(sensitive_air_alert, axis=1)
     return average_24hr
-
 #-----------------------------------------------------------------------------
