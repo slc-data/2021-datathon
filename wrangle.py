@@ -12,7 +12,95 @@ import sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 #-----------------------------------------------------------------------------
+def full_air_df():
+    '''Combines air quality dataframes for:
+        brooks
+        downtown
+        medical center
+    into one main df.'''
+    # read medical center and clean it
+    med_air = pd.read_csv('med_center_air.csv')
+    med_air = wrangle.clean_air(med_air)
+    # read downtown and clean it
+    down_air = pd.read_csv('downtown_air.csv')
+    down_air = wrangle.clean_air(down_air)
+    #read the brooks and clean it
+    brooks_air = pd.read_csv('brooks_air.csv')
+    brooks_air = wrangle.clean_air(brooks_air)
+    # specify what df's to combine together
+    frames = [med_air, down_air, brooks_air]
+    # concat the df's together
+    df = pd.concat(frames)
+    return df
+#-----------------------------------------------------------------------------
+def full_flood_df():
+    '''Combines flood dataframes for:
+        brooks
+        downtown
+        medical center
+    into one main df.'''
+    # read medical center and clean it
+    med_flood = pd.read_csv('med_center_flood.csv')
+    med_flood = wrangle.clean_flood(med_flood)
+    # read downtown and clean it
+    down_flood = pd.read_csv('downtown_flood.csv')
+    down_flood = wrangle.clean_flood(down_flood)
+    #read the brooks and clean it
+    brooks_flood = pd.read_csv('brooks_flood.csv')
+    brooks_flood = wrangle.clean_flood(brooks_flood)
+    # specify what df's to combine together
+    frames = [med_flood, down_flood, brooks_flood]
+    # concat the df's together
+    df = pd.concat(frames)
+    return df
 
+#-----------------------------------------------------------------------------
+def full_sound_df():
+    '''Combines sound dataframes for:
+        brooks
+        downtown
+        medical center
+    into one main df.'''
+    # read medical center and clean it
+    med_sound = pd.read_csv('med_center_sound.csv')
+    med_sound = wrangle.wrangle_sound(med_sound)
+    # read downtown and clean it
+    down_sound = pd.read_csv('downtown_sound.csv')
+    down_sound = wrangle.wrangle_sound(down_sound)
+    #read the brooks and clean it
+    brooks_sound = pd.read_csv('brooks_sound.csv')
+    brooks_sound = wrangle.wrangle_sound(brooks_sound)
+    # specify what df's to combine together
+    frames = [med_sound, down_sound, brooks_sound]
+    # concat the df's together
+    df = pd.concat(frames)
+    return df
+
+#-----------------------------------------------------------------------------
+def full_weather_df():
+    '''Combines weather dataframes for:
+        brooks
+        downtown
+        medical center
+    into one main df.'''
+    # read medical center and clean it
+    med_weather = pd.read_csv('med_center_weather.csv')
+    med_weather = wrangle.wrangle_weather(med_weather)
+    # read downtown and clean it
+    down_weather = pd.read_csv('downtown_weather.csv')
+    down_weather = wrangle.wrangle_weather(down_weather)
+    #read the brooks and clean it
+    brooks_weather = pd.read_csv('brooks_weather.csv')
+    brooks_weather = wrangle.wrangle_weather(brooks_weather)
+    # specify what df's to combine together
+    frames = [med_weather, down_weather, brooks_weather]
+    # concat the df's together
+    df = pd.concat(frames)
+    return df
+
+#-----------------------------------------------------------------------------
+
+# Air Quality Cleaning
 def clean_air(df):
     '''Drops unneeded columns from the air quality df
     then handles the nulls in alert triggered column
@@ -138,19 +226,21 @@ def clean_air(df):
     df['hypothetical_sensitive_alert'] = df.apply(sensitive_df_alert, axis=1)
     # return new df
     return df
+
 #-----------------------------------------------------------------------------
 
 # Flood Cleaning
 
+# Flood Cleaning
 def clean_flood(df):
     '''Drops unneeded columns from the med center flooding df
     Makes sure DateTime is in DateTime format'''
     # drop the columns
-    df = df.drop(columns=['LAT', 'LONG', 'Zone',  
+    df = df.drop(columns=['LAT', 'LONG',  
                           'SensorStatus', 'AlertTriggered', 
                           'Temp_C', 'Temp_F', 'Vendor'])
     # Set to date time format
-    flood.DateTime = pd.to_datetime(df.DateTime)
+    df.DateTime = pd.to_datetime(df.DateTime)
     df = df.rename(columns={"DateTime": "datetime", 
                         "DistToWL_ft": "sensor_to_water_feet", 
                         "DistToWL_m": "sensor_to_water_meters", 
@@ -180,6 +270,7 @@ def clean_flood(df):
     df = df[(df.sensor_to_water_feet != -999)]
     # return new df
     return df
+
 #-----------------------------------------------------------------------------
 
 # Weather Cleaning
@@ -215,7 +306,6 @@ def wrangle_weather(df):
     'SensorModel', 
     'LAT', 
     'LONG', 
-    'Zone', 
     'AlertTriggered', 
     'SensorStatus'], inplace=True)
     #rename columns to be more readable
@@ -247,6 +337,7 @@ def wrangle_weather(df):
     df['visibility'] = df['visibility'].astype(int)
     #return clean weather df
     return df
+
 #-----------------------------------------------------------------------------
 
 # Wrangle SAWS
@@ -302,7 +393,7 @@ def wrangle_sound(df):
     object
     '''
     # Drops unnecessary columns
-    df = df.drop(columns = ['SensorStatus', 'AlertTriggered', 'Zone', 'LONG', 
+    df = df.drop(columns = ['SensorStatus', 'AlertTriggered', 'LONG', 
                             'LAT', 'SensorModel', 'Vendor', 'Sensor_id'])
     # Converts to datetime
     df['DateTime'] = pd.to_datetime(df.DateTime)
@@ -321,6 +412,8 @@ def wrangle_sound(df):
             return 'No Alert'
     df['sound_alert'] = df.apply(sound_alert, axis=1)
     return df
+
+
 #-----------------------------------------------------------------------------
 
 # Split the Data into Tain, Test, and Validate.
@@ -335,76 +428,8 @@ def split_data(df):
                                        random_state=1234)
     return train, validate, test
 
-#-----------------------------------------------------------------------------
-
-# Daily averages and more for all COSA sataframes
-def full_daily_COSA_dataframe():
-    
-    '''
-    This function takes in all COSA dataframes,
-    averages them by day, then joins them all together
-    using the day as a primary key
-    '''
-
-    # Pulls sound CSV and sets datetime as index, then orders it
-    sound_df = wrangle_sound()
-    sound_df = sound_df.set_index('DateTime')
-    sound_df = sound_df.sort_index()
-    # Pulls flood CSV and sets datetime as index
-    flood_df = clean_flood()
-    flood_df = flood_df.set_index('datetime')
-    # Pulls weather CSV
-    weather_df = wrangle_weather()
-    # Pulls air CSV, sets datetime column to datetime object, sets it as an index, then sorts it
-    air_df = clean_air()
-    air_df.datetime = pd.to_datetime(air_df.datetime)
-    air_df = air_df.set_index('datetime')
-    air_df = air_df.sort_index()
-    # Resamples each dataframe by the day using mean, and drops unnecessary columns from air_df
-    weather_day_df = weather_df.resample('D', on='datetime').mean()
-    flood_day_df = flood_df.resample('D').mean()
-    sound_day_df = sound_df.resample('D').mean()
-    air_day_df = air_df.resample('D').mean().drop(columns = ['hour', 'weekday', 'CO_24hr', 'Pm_25_24hr', 'Pm_10_24hr', 'SO2', 'O3', 'NO2'])
-    # Creating series for each pollutant
-    air2_5 = air_df.drop(air_df.columns.difference(['Pm2_5', 'AQI_pm2_5']), 1)
-    air10 = air_df.drop(air_df.columns.difference(['Pm10', 'AQI_pm10']), 1)
-    airCO = air_df.drop(air_df.columns.difference(['CO', 'AQI_CO']), 1)
-    # Pull most hazardous levels of pollution for each day
-    series2_5 = air2_5.resample('D').max().rename(columns = {'AQI_pm2_5': 'most_hazardous_pm2.5_level'})['most_hazardous_pm2.5_level']
-    series10 = air10.resample('D').max().rename(columns = {'AQI_pm10': 'most_hazardous_pm10_level'})['most_hazardous_pm10_level']
-    seriesCO = airCO.resample('D').max().rename(columns = {'AQI_CO': 'most_hazardous_CO_level'})['most_hazardous_CO_level']
-    # Joins the series together in a dataframe
-    hazards = pd.DataFrame(series2_5).join(series10).join(seriesCO)
-    # Joins the resampled dataframes together
-    df = weather_day_df.join(air_day_df).join(hazards).join(sound_day_df).join(flood_day_df)
-    # Rounds numbers in specific columns
-    df = df.round({'celsius': 2, 'farenheit': 2, 'humidity': 2, 'dewpoint_celsius': 2, 'dewpoint_farenheit': 2,
-          'pressure': 2, 'NoiseLevel_db': 2, 'sensor_to_water_feet': 2, 'sensor_to_water_meters': 2,
-          'sensor_to_ground_feet': 2, 'sensor_to_ground_meters': 2, 'flood_depth_feet': 2,
-          'flood_depth_meters': 2})
-    # Create AQI for CO
-    df['AQI_CO'] = pd.cut(df.CO, 
-                            bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
-                            labels = ['Good', 'Moderate', 
-                                      'Unhealthy for Sensitive Groups', "Unhealthy", 
-                                      "Very Unhealthy", 'Hazardous'])
-    # create AQi for pm 2.5
-    df['AQI_pm2_5'] = pd.cut(df.Pm2_5, 
-                                bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
-                                labels = ['Good', 'Moderate', 
-                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
-                                          "Very Unhealthy", 'Hazardous'])
-    # create AQI for pm 10
-    df['AQI_pm10'] = pd.cut(df.Pm10, 
-                                bins = [-1,55,154,255,355,425,4000],
-                                labels = ['Good', 'Moderate', 
-                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
-                                          "Very Unhealthy", 'Hazardous'])
-    return df
 
 #-----------------------------------------------------------------------------
-
-#
 
 def show_saws():
 
@@ -817,4 +842,5 @@ def air_24hr_avg(df):
 
     average_24hr['sensitive_alert'] = average_24hr.apply(sensitive_air_alert, axis=1)
     return average_24hr
+
 #-----------------------------------------------------------------------------

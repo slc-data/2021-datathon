@@ -12,6 +12,93 @@ import sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 #-----------------------------------------------------------------------------
+def full_air_df():
+    '''Combines air quality dataframes for:
+        brooks
+        downtown
+        medical center
+    into one main df.'''
+    # read medical center and clean it
+    med_air = pd.read_csv('med_center_air.csv')
+    med_air = wrangle.clean_air(med_air)
+    # read downtown and clean it
+    down_air = pd.read_csv('downtown_air.csv')
+    down_air = wrangle.clean_air(down_air)
+    #read the brooks and clean it
+    brooks_air = pd.read_csv('brooks_air.csv')
+    brooks_air = wrangle.clean_air(brooks_air)
+    # specify what df's to combine together
+    frames = [med_air, down_air, brooks_air]
+    # concat the df's together
+    df = pd.concat(frames)
+    return df
+#-----------------------------------------------------------------------------
+def full_flood_df():
+    '''Combines flood dataframes for:
+        brooks
+        downtown
+        medical center
+    into one main df.'''
+    # read medical center and clean it
+    med_flood = pd.read_csv('med_center_flood.csv')
+    med_flood = wrangle.clean_flood(med_flood)
+    # read downtown and clean it
+    down_flood = pd.read_csv('downtown_flood.csv')
+    down_flood = wrangle.clean_flood(down_flood)
+    #read the brooks and clean it
+    brooks_flood = pd.read_csv('brooks_flood.csv')
+    brooks_flood = wrangle.clean_flood(brooks_flood)
+    # specify what df's to combine together
+    frames = [med_flood, down_flood, brooks_flood]
+    # concat the df's together
+    df = pd.concat(frames)
+    return df
+
+#-----------------------------------------------------------------------------
+def full_sound_df():
+    '''Combines sound dataframes for:
+        brooks
+        downtown
+        medical center
+    into one main df.'''
+    # read medical center and clean it
+    med_sound = pd.read_csv('med_center_sound.csv')
+    med_sound = wrangle.wrangle_sound(med_sound)
+    # read downtown and clean it
+    down_sound = pd.read_csv('downtown_sound.csv')
+    down_sound = wrangle.wrangle_sound(down_sound)
+    #read the brooks and clean it
+    brooks_sound = pd.read_csv('brooks_sound.csv')
+    brooks_sound = wrangle.wrangle_sound(brooks_sound)
+    # specify what df's to combine together
+    frames = [med_sound, down_sound, brooks_sound]
+    # concat the df's together
+    df = pd.concat(frames)
+    return df
+
+#-----------------------------------------------------------------------------
+def full_weather_df():
+    '''Combines weather dataframes for:
+        brooks
+        downtown
+        medical center
+    into one main df.'''
+    # read medical center and clean it
+    med_weather = pd.read_csv('med_center_weather.csv')
+    med_weather = wrangle.wrangle_weather(med_weather)
+    # read downtown and clean it
+    down_weather = pd.read_csv('downtown_weather.csv')
+    down_weather = wrangle.wrangle_weather(down_weather)
+    #read the brooks and clean it
+    brooks_weather = pd.read_csv('brooks_weather.csv')
+    brooks_weather = wrangle.wrangle_weather(brooks_weather)
+    # specify what df's to combine together
+    frames = [med_weather, down_weather, brooks_weather]
+    # concat the df's together
+    df = pd.concat(frames)
+    return df
+
+#-----------------------------------------------------------------------------
 
 # Air Quality Cleaning
 def clean_air(df):
@@ -149,11 +236,11 @@ def clean_flood(df):
     '''Drops unneeded columns from the med center flooding df
     Makes sure DateTime is in DateTime format'''
     # drop the columns
-    df = df.drop(columns=['LAT', 'LONG', 'Zone',  
+    df = df.drop(columns=['LAT', 'LONG',  
                           'SensorStatus', 'AlertTriggered', 
                           'Temp_C', 'Temp_F', 'Vendor'])
     # Set to date time format
-    flood.DateTime = pd.to_datetime(df.DateTime)
+    df.DateTime = pd.to_datetime(df.DateTime)
     df = df.rename(columns={"DateTime": "datetime", 
                         "DistToWL_ft": "sensor_to_water_feet", 
                         "DistToWL_m": "sensor_to_water_meters", 
@@ -219,7 +306,6 @@ def wrangle_weather(df):
     'SensorModel', 
     'LAT', 
     'LONG', 
-    'Zone', 
     'AlertTriggered', 
     'SensorStatus'], inplace=True)
     #rename columns to be more readable
@@ -307,7 +393,7 @@ def wrangle_sound(df):
     object
     '''
     # Drops unnecessary columns
-    df = df.drop(columns = ['SensorStatus', 'AlertTriggered', 'Zone', 'LONG', 
+    df = df.drop(columns = ['SensorStatus', 'AlertTriggered', 'LONG', 
                             'LAT', 'SensorModel', 'Vendor', 'Sensor_id'])
     # Converts to datetime
     df['DateTime'] = pd.to_datetime(df.DateTime)
