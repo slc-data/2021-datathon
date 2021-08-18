@@ -14,6 +14,27 @@ The **Clean COSA Data App** will take in COSA csv's and wrangle it into a form t
 ''')
 
 #-----------------------------------------------------------------------------
+# Upload CSV data
+with st.sidebar.header('1. Upload your CSV data'):
+    uploaded_csv = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
+
+# Pandas Profiling Report
+if uploaded_csv is not None:
+    @st.cache
+    def load_csv():
+        csv = pd.read_csv(uploaded_csv)
+        return csv
+    df = load_csv()
+    pr = ProfileReport(df, explorative=True)
+    st.header('**Checkout The Data!**')
+    st.write(df)
+    st.write('---')
+    st.header('**Pandas Profiling Report**')
+    st_profile_report(pr)
+else:
+    st.info('Upload a COSA dataset :) ')
+
+#-----------------------------------------------------------------------------
 def full_air_df():
     '''Combines air quality dataframes for:
         brooks
