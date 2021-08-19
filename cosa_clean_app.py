@@ -55,7 +55,6 @@ if uploaded_csv is not None:
         csv = pd.read_csv(uploaded_csv)
         return csv
     df = load_csv()
-    print(df.info())
 # Display unclean data
     st.header('**Checkout The Raw Data!**')
     st.dataframe(df)
@@ -66,7 +65,9 @@ else:
 
 
 #-----------------------------------------------------------------------------
-
+#Print data types
+def show_datatypes(df):
+    return df.info()
 #-----------------------------------------------------------------------------
 
 
