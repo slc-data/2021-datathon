@@ -65,9 +65,9 @@ else:
 
 
 #-----------------------------------------------------------------------------
-#Print data types
-def show_datatypes(df):
-    return df.info()
+#Print data types before clean
+def show_datatypes(uploaded_csv):
+    return uploaded_csv.info()
 #-----------------------------------------------------------------------------
 
 
