@@ -55,15 +55,15 @@ if uploaded_csv is not None:
         csv = pd.read_csv(uploaded_csv)
         return csv
     df = load_csv()
-    
+# Display unclean data
+    st.dataframe(df)
 else:
     st.info('Upload a SMARTSA Street Light Sensor dataset :) ')
 
 
 
 #-----------------------------------------------------------------------------
-# Display unclean data
-st.dataframe(df)
+
 #-----------------------------------------------------------------------------
 
 
