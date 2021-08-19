@@ -1,16 +1,46 @@
 
 # Streamlit CLEAN COSA DATA APP for Datathon
-
+####################################################################
+#COSA CSV REFERENCES 8/18/2021
+# Brooks air quality:  81661d35-a5c5-40d1-af16-92edd3946579.csv
+# Brooks flood:  c0c546cd-fbfa-479c-b1ca-ac7a7244aa53.csv
+# Brooks sound:  3cc6c00e-0874-423f-ac81-de6081c1b532.csv
+# Brooks weather:  4dc78055-6ca6-4ce8-8a36-4c22804f6a9b.csv
+# Downtown air quality:  12ebf68f-95b0-4d96-9a1b-9c4f4e25497e.csv
+# Downtown flood:  346d33b7-0b74-4b92-aa22-452456954ed1.csv
+# Downtown sound:  f21099d0-22d7-43e7-bf06-3dac304b6765.csv
+# Downton weather:  f6038372-b38f-42bb-8cf5-5d6419a46cf1.csv
+# Med center air quality:  0f16d9bc-fdf4-45fb-8198-dab84dc67ad7.csv
+# med center flood:  aaf0e6a5-8df7-4f0c-bf22-7b2f6ad6943d.csv
+# med center sound:  31f8a3f4-bc73-48c4-96bf-768388129f85.csv
+# med center weather:  7c2649a6-bb5a-4579-ab86-fbaee4e7024a.csv  
+#####################################################################
 # Imports
 import pandas as pd
 import numpy as np
 import seaborn as sns
 import streamlit as st
+import streamlit.components as stc
+
+# Utils
+import base64
+import time
+timestr = time.strftime("%Y%m%d-%H%M%S")
+
+#csv downloader
+def csv_downloader(data):
+    csvfile = data.to_csv()
+    b64 = base64.b64encode(csvfile.encode()).decode()
+    new_filename = "new_text_file_{}_.csv".format(timestr)
+    st.markdown("#### Download file ####")
+    href = f'<a href="data:file/csv;base64,{b64}" download="{new_filename}">Click Here!!!</a>'
+    st.markdown(href, unsafe_allow_html=True)
+
 
 # Web App Title
 st.markdown('''
 # **Clean COSA Data App**
-The **Clean COSA Data App** will take in COSA csv's and wrangle it into a form that can be easily explored for data analysis!
+The **Clean COSA Data App** will take in SMARTSA Street Light Sensor csv and wrangle it into a form that can be easily explored for data analysis!
 ''')
 
 #-----------------------------------------------------------------------------
@@ -18,110 +48,24 @@ The **Clean COSA Data App** will take in COSA csv's and wrangle it into a form t
 with st.sidebar.header('1. Upload your CSV data'):
     uploaded_csv = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 
-# Pandas Profiling Report
+# Determine which cosa dataframe has been loaded
 if uploaded_csv is not None:
     @st.cache
     def load_csv():
         csv = pd.read_csv(uploaded_csv)
         return csv
     df = load_csv()
-    pr = ProfileReport(df, explorative=True)
-    st.header('**Checkout The Data!**')
-    st.write(df)
-    st.write('---')
-    st.header('**Pandas Profiling Report**')
-    st_profile_report(pr)
+    
 else:
-    st.info('Upload a COSA dataset :) ')
+    st.info('Upload a SMARTSA Street Light Sensor dataset :) ')
+
+
 
 #-----------------------------------------------------------------------------
-def full_air_df():
-    '''Combines air quality dataframes for:
-        brooks
-        downtown
-        medical center
-    into one main df.'''
-    # read medical center and clean it
-    med_air = pd.read_csv('med_center_air.csv')
-    med_air = wrangle.clean_air(med_air)
-    # read downtown and clean it
-    down_air = pd.read_csv('downtown_air.csv')
-    down_air = wrangle.clean_air(down_air)
-    #read the brooks and clean it
-    brooks_air = pd.read_csv('brooks_air.csv')
-    brooks_air = wrangle.clean_air(brooks_air)
-    # specify what df's to combine together
-    frames = [med_air, down_air, brooks_air]
-    # concat the df's together
-    df = pd.concat(frames)
-    return df
+# Display unclean data
+st.dataframe(df)
 #-----------------------------------------------------------------------------
-def full_flood_df():
-    '''Combines flood dataframes for:
-        brooks
-        downtown
-        medical center
-    into one main df.'''
-    # read medical center and clean it
-    med_flood = pd.read_csv('med_center_flood.csv')
-    med_flood = wrangle.clean_flood(med_flood)
-    # read downtown and clean it
-    down_flood = pd.read_csv('downtown_flood.csv')
-    down_flood = wrangle.clean_flood(down_flood)
-    #read the brooks and clean it
-    brooks_flood = pd.read_csv('brooks_flood.csv')
-    brooks_flood = wrangle.clean_flood(brooks_flood)
-    # specify what df's to combine together
-    frames = [med_flood, down_flood, brooks_flood]
-    # concat the df's together
-    df = pd.concat(frames)
-    return df
 
-#-----------------------------------------------------------------------------
-def full_sound_df():
-    '''Combines sound dataframes for:
-        brooks
-        downtown
-        medical center
-    into one main df.'''
-    # read medical center and clean it
-    med_sound = pd.read_csv('med_center_sound.csv')
-    med_sound = wrangle.wrangle_sound(med_sound)
-    # read downtown and clean it
-    down_sound = pd.read_csv('downtown_sound.csv')
-    down_sound = wrangle.wrangle_sound(down_sound)
-    #read the brooks and clean it
-    brooks_sound = pd.read_csv('brooks_sound.csv')
-    brooks_sound = wrangle.wrangle_sound(brooks_sound)
-    # specify what df's to combine together
-    frames = [med_sound, down_sound, brooks_sound]
-    # concat the df's together
-    df = pd.concat(frames)
-    return df
-
-#-----------------------------------------------------------------------------
-def full_weather_df():
-    '''Combines weather dataframes for:
-        brooks
-        downtown
-        medical center
-    into one main df.'''
-    # read medical center and clean it
-    med_weather = pd.read_csv('med_center_weather.csv')
-    med_weather = wrangle.wrangle_weather(med_weather)
-    # read downtown and clean it
-    down_weather = pd.read_csv('downtown_weather.csv')
-    down_weather = wrangle.wrangle_weather(down_weather)
-    #read the brooks and clean it
-    brooks_weather = pd.read_csv('brooks_weather.csv')
-    brooks_weather = wrangle.wrangle_weather(brooks_weather)
-    # specify what df's to combine together
-    frames = [med_weather, down_weather, brooks_weather]
-    # concat the df's together
-    df = pd.concat(frames)
-    return df
-
-#-----------------------------------------------------------------------------
 
 # Air Quality Cleaning
 def clean_air(df):
@@ -439,7 +383,7 @@ def wrangle_sound(df):
 
 #-----------------------------------------------------------------------------
 
-# Split the Data into Tain, Test, and Validate.
+# Split the Data into Train, Test, and Validate.
 def split_data(df):
     '''This fuction takes in a df 
     splits into train, test, validate
@@ -520,7 +464,7 @@ def show_saws():
     
 #-----------------------------------------------------------------------------
 
-# create air df based on 1 hr incriments
+# create air df based on 1 hr increments
 def air_1hr_avg(df):
     '''Takes in air df and creates every 8 hour averages'''
     # duplicate datetime column
@@ -606,7 +550,7 @@ def air_1hr_avg(df):
     return average_1hr
 
 #-----------------------------------------------------------------------------
-# air df in 8 hour incriments
+# air df in 8 hour increments
 def air_8hr_avg(df):
     '''Takes in df df and creates every 8 hour averages'''
     # duplicate datetime column
@@ -781,7 +725,7 @@ def air_12hr_avg(df):
 
 #-----------------------------------------------------------------------------
 
-# create air df based on 24 hr incriments
+# create air df based on 24 hr increments
 def air_24hr_avg(df):
     '''Takes in df df and creates every 8 hour averages'''
     # duplicate datetime column
