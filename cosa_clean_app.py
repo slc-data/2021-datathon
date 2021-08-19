@@ -57,6 +57,8 @@ if uploaded_csv is not None:
     df = load_csv()
 # Display unclean data
     st.dataframe(df)
+    st.header('**Checkout The Raw Data!**')
+    df.info
 else:
     st.info('Upload a SMARTSA Street Light Sensor dataset :) ')
 
