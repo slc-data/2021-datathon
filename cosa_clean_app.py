@@ -67,11 +67,11 @@ if uploaded_csv is not None:
             clean = cf.clean_flood(df)
             st.header('**Squeaky clean!**')
             st.dataframe(clean)
+            csv_downloader(clean)
         else:
             st.text('not flood')
 #---------------------------------
     which_dataset()
-    csv_downloader(clean)
 else:
     st.info('Upload a SMARTSA Street Light Sensor dataset :) ')
 
