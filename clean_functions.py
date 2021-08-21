@@ -27,24 +27,29 @@ def clean_flood(df):
     '''Drops unneeded columns from the med center flooding df
     Makes sure DateTime is in DateTime format'''
     # drop the columns
-    df = df.drop(columns=['LAT', 'LONG',  
-                          'SensorStatus', 'AlertTriggered', 
-                          'Temp_C', 'Temp_F', 'Vendor'])
+    df = df.drop(columns=['Temp_C', 'DistToDF_m', 'DistToWL_m'])
     # Set to date time format
     df.DateTime = pd.to_datetime(df.DateTime)
     df = df.rename(columns={"DateTime": "datetime", 
-                        "DistToWL_ft": "sensor_to_water_feet", 
-                        "DistToWL_m": "sensor_to_water_meters", 
+                        "Sensor_id": "sensor_id",
+                        "Vendor:" "vendor",
+                        "SensorModel:" "sensor_model",
+                        "LAT:" "latitude",
+                        "LONG:" "longitude",
+                        "Zone:" "pilot_zone"
+                        "Temp_F:" "temp_farenheit",
+                        "DistToWL_ft": "sensor_to_water_feet",  
                         "DistToDF_ft": "sensor_to_ground_feet",
-                        "DistToDF_m": "sensor_to_ground_meters"})
+                        "AlertTriggered": "alert_triggered",
+                        "SensorStatus": "sensor_status"})
     # replace -999 with 0
     df["sensor_to_ground_feet"].replace({-999:13.5006561680}, inplace=True)
-    df["sensor_to_ground_meters"].replace({-999:4.115}, inplace=True)
+
     
     #flood = flood.replace(to_replace=-999, value=0)
     # create new features for flood depth
     df['flood_depth_feet'] = df.sensor_to_ground_feet - df.sensor_to_water_feet
-    df['flood_depth_meters'] = df.sensor_to_ground_meters - df.sensor_to_water_meters 
+
     # Create new alert
     def flood_alert(c):
         if 0 < c['flood_depth_feet'] < 0.66667:
