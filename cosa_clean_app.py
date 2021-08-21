@@ -63,9 +63,9 @@ if uploaded_csv is not None:
 #Which dataset
     def which_dataset():
         if uploaded_csv.name == 'c0c546cd-fbfa-479c-b1ca-ac7a7244aa53.csv':
-            print('flood')
+            st.text('flood')
         else:
-            print('not flood')
+            st.text('not flood')
 #---------------------------------
     which_dataset()
 else:
