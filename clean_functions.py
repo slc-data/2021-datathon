@@ -32,7 +32,7 @@ def clean_flood(df):
     df.DateTime = pd.to_datetime(df.DateTime)
     df = df.rename(columns={"DateTime": "datetime", 
                         "Sensor_id": "sensor_id",
-                        "Vendor:" "vendor",
+                        "Vendor": "vendor",
                         "SensorModel:" "sensor_model",
                         "LAT:" "latitude",
                         "LONG:" "longitude",
