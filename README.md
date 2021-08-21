@@ -1,5 +1,5 @@
 <a name="top"></a>
-![name of photo](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/new_header.png?raw=true)
+![name of photo](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/header.png?raw=true)
 
 ***
 [[Project Description](#project_description)]
@@ -7,11 +7,12 @@
 [[Data Dictionaries](#dictionary)]
 [[Conclusion](#conclusion)]
 [[Recreate This Project](#recreate)]
+[[Meet The Team](#team)]
 ___
 
 
 ## <a name="project_description"></a> 
-![desc](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/project_description.png?raw=true)
+![desc](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/desc.png?raw=true)
 [[Back to top](#top)]
 
 <details>
@@ -31,7 +32,7 @@ ___
 
 
 ## <a name="pipeline"></a>
-![pipeline](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/ds_pipeline.png?raw=true)
+![pipeline](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/pipeline.png?raw=true)
 [[Back to top](#top)]
 
 <details>
@@ -129,7 +130,7 @@ ___
 </details>
 
 ## <a name="dictionary"></a>
-![dict](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/data_dict.png?raw=true)
+![dict](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/dict.png?raw=true)
 
 [[Back to top](#top)]
 
@@ -225,7 +226,7 @@ ___
 
 
 ## <a name="conclusion"></a>
-![conclusion](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/conclusion.png?raw=true)
+![conclusion](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/conc.png?raw=true)
 [[Back to top](#top)]
 <details>
   <summary>Click to expand!</summary>
@@ -298,6 +299,10 @@ Good luck I hope you enjoy your project!
 
 </details>
     
+## <a name="team"></a> 
+
+![the_team](https://github.com/slc-data/2021-datathon/blob/main/photos/readme/the_team.png?raw=true)
+[[Back to top](#top)]
 
 
 >>>>>>>>>>>>>>>
