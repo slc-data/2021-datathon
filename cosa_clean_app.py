@@ -29,12 +29,12 @@ import time
 timestr = time.strftime("%Y%m%d-%H%M%S")
 
 #csv downloader
-def csv_downloader(data):
-    csvfile = data.to_csv()
+def csv_downloader(df):
+    csvfile = df.to_csv()
     b64 = base64.b64encode(csvfile.encode()).decode()
     new_filename = "new_text_file_{}_.csv".format(timestr)
     st.markdown("#### Download file ####")
-    href = f'<a href="data:file/csv;base64,{b64}" download="{new_filename}">Click Here!!!</a>'
+    href = f'<a href="df:file/csv;base64,{b64}" download="{new_filename}">Click Here!!!</a>'
     st.markdown(href, unsafe_allow_html=True)
 
 
@@ -71,6 +71,7 @@ if uploaded_csv is not None:
             st.text('not flood')
 #---------------------------------
     which_dataset()
+    csv_downloader(df)
 else:
     st.info('Upload a SMARTSA Street Light Sensor dataset :) ')
 

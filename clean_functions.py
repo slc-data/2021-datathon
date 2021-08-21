@@ -27,7 +27,7 @@ def clean_flood(df):
     '''Drops unneeded columns from the med center flooding df
     Makes sure DateTime is in DateTime format'''
     # drop the columns
-    df = df.drop(columns=['Temp_C', 'DistToDF_m', 'DistToWL_m'])
+    df = df.drop(columns=['Temp_C', 'Temp_F' 'DistToDF_m', 'DistToWL_m'])
     # Set to date time format
     df.DateTime = pd.to_datetime(df.DateTime)
     df = df.rename(columns={
@@ -38,7 +38,6 @@ def clean_flood(df):
         "LAT": "latitude",
         "LONG": "longitude",
         "Zone": "pilot_zone",
-        "Temp_F": "temp_farenheit",
         "DistToWL_ft": "sensor_to_water_feet",
         "DistToDF_ft": "sensor_to_ground_feet",
         "AlertTriggered": "alert_triggered",
