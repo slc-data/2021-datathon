@@ -70,7 +70,7 @@ else:
 #-----------------------------------------------------------------------------
 #Print data types before clean
 def which_dataset():
-    if uploaded_csv.name = 'c0c546cd-fbfa-479c-b1ca-ac7a7244aa53.csv':
+    if uploaded_csv.name == 'c0c546cd-fbfa-479c-b1ca-ac7a7244aa53.csv':
         print('flood')
     else:
         print('not flood')
