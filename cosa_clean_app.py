@@ -21,7 +21,7 @@ import numpy as np
 import seaborn as sns
 import streamlit as st
 import streamlit.components as stc
-import wrangle as w
+import clean_functions as cf
 
 # Utils
 import base64
@@ -64,7 +64,9 @@ if uploaded_csv is not None:
 #Which dataset
     def which_dataset():
         if uploaded_csv.name == 'c0c546cd-fbfa-479c-b1ca-ac7a7244aa53.csv':
-            st.text('flood')
+            cf.clean_flood()
+            st.header('Squeaky cleannn')
+            st.dataframe(df)
         else:
             st.text('not flood')
 #---------------------------------
