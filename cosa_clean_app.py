@@ -60,7 +60,8 @@ if uploaded_csv is not None:
 # Display unclean data
     st.header('**Checkout The Raw Data!**')
     st.dataframe(df)
-    
+#Which dataset
+    which_dataset()
 else:
     st.info('Upload a SMARTSA Street Light Sensor dataset :) ')
 
@@ -68,5 +69,9 @@ else:
 
 #-----------------------------------------------------------------------------
 #Print data types before clean
-
+def which_dataset():
+    if uploaded_csv.name = 'c0c546cd-fbfa-479c-b1ca-ac7a7244aa53.csv':
+        print('flood')
+    else:
+        print('not flood')
 #-----------------------------------------------------------------------------
