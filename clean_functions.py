@@ -30,17 +30,7 @@ def clean_flood(df):
     df = df.drop(columns=['Temp_C', 'DistToDF_m', 'DistToWL_m'])
     # Set to date time format
     df.DateTime = pd.to_datetime(df.DateTime)
-    df = df.rename(columns={"DateTime": "datetime", 
-                        "Sensor_id": "sensor_id",
-                        "Vendor": "vendor",
-                        "SensorModel:" "sensor_model",
-                        "LAT:" "latitude","LONG:" "longitude",
-                        "Zone:" "pilot_zone",
-                        "Temp_F:" "temp_farenheit",
-                        "DistToWL_ft": "sensor_to_water_feet",
-                        "DistToDF_ft": "sensor_to_ground_feet",
-                        "AlertTriggered": "alert_triggered",
-                        "SensorStatus": "sensor_status"})
+    df = df.rename(columns={"DateTime": "datetime", "Sensor_id": "sensor_id", "Vendor": "vendor", "SensorModel:" "sensor_model", "LAT:" "latitude","LONG:" "longitude", "Zone:" "pilot_zone", "Temp_F:" "temp_farenheit", "DistToWL_ft": "sensor_to_water_feet", "DistToDF_ft": "sensor_to_ground_feet", "AlertTriggered": "alert_triggered", "SensorStatus": "sensor_status"})
     # replace -999 with 0
     df["sensor_to_ground_feet"].replace({-999:13.5006561680}, inplace=True)
 
