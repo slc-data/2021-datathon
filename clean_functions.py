@@ -34,11 +34,10 @@ def clean_flood(df):
                         "Sensor_id": "sensor_id",
                         "Vendor": "vendor",
                         "SensorModel:" "sensor_model",
-                        "LAT:" "latitude",
-                        "LONG:" "longitude",
-                        "Zone:" "pilot_zone"
+                        "LAT:" "latitude","LONG:" "longitude",
+                        "Zone:" "pilot_zone",
                         "Temp_F:" "temp_farenheit",
-                        "DistToWL_ft": "sensor_to_water_feet",  
+                        "DistToWL_ft": "sensor_to_water_feet",
                         "DistToDF_ft": "sensor_to_ground_feet",
                         "AlertTriggered": "alert_triggered",
                         "SensorStatus": "sensor_status"})
