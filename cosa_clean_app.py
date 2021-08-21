@@ -64,7 +64,7 @@ if uploaded_csv is not None:
 #Which dataset
     def which_dataset():
         if uploaded_csv.name == 'c0c546cd-fbfa-479c-b1ca-ac7a7244aa53.csv':
-            cf.clean_flood()
+            cf.clean_flood(df)
             st.header('Squeaky cleannn')
             st.dataframe(df)
         else:
