@@ -63,7 +63,7 @@ if uploaded_csv is not None:
     st.dataframe(df)
 #Which dataset
     def which_dataset():
-        if uploaded_csv.name == 'c0c546cd-fbfa-479c-b1ca-ac7a7244aa53.csv':
+        if uploaded_csv.name == 'c0c546cd-fbfa-479c-b1ca-ac7a7244aa53.csv' or uploaded_csv.name == '346d33b7-0b74-4b92-aa22-452456954ed1.csv' or uploaded_csv.name == 'aaf0e6a5-8df7-4f0c-bf22-7b2f6ad6943d.csv':
             clean = cf.clean_flood(df)
             st.header('**Squeaky clean!**')
             st.dataframe(clean)
