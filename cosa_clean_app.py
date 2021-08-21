@@ -21,6 +21,7 @@ import numpy as np
 import seaborn as sns
 import streamlit as st
 import streamlit.components as stc
+import wrangle as w
 
 # Utils
 import base64
