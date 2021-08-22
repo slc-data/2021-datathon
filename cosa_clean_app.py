@@ -53,7 +53,7 @@ with st.sidebar.header('1. Upload your CSV data'):
 if uploaded_csv is not None:
     file_details = {"FileName":uploaded_csv.name,"FileType":uploaded_csv.type,"FileSize":uploaded_csv.size}
     st.write(file_details)
-    @st.cache
+    @st.cache(allow_output_mutation=True)
     def load_csv():
         csv = pd.read_csv(uploaded_csv)
         return csv
