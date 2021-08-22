@@ -66,3 +66,215 @@ def clean_flood(df):
     df = df[(df.sensor_to_water_feet != -999)]
     # return new df
     return df
+
+# Air cleaning
+#-----------------------------------------------------------------------------
+
+# Air Quality Cleaning
+def clean_air(df):
+    '''Drops unneeded columns from the air quality df
+    then handles the nulls in alert triggered column
+    set to date time format'''
+    # drop the colums
+    df = df.drop(columns=['LAT', 'LONG', 'SensorStatus'])
+    # replace nulls in ALertTriggered to None
+    df.fillna("None", inplace = True)
+    # set to date time format
+    df.DateTime = pd.to_datetime(df.DateTime)
+    # rename features
+    df = df.rename(columns={"DateTime": "datetime",
+                              "AlertTriggered": "alert_triggered",
+                              "Sensor_id": "sensor_id",
+                              "Vendor": "vendor",
+                              "SensorModel": "sensor_model"})
+    df = df.replace(to_replace=-999, value=0)
+    # create time series features
+    df['dates'] = pd.to_datetime(df['datetime']).dt.date
+    df['time'] = pd.to_datetime(df['datetime']).dt.time
+    df['hour'] = pd.to_datetime(df['datetime']).dt.hour
+    df['weekday'] = pd.to_datetime(df['datetime']).dt.weekday
+    # make all CO bins
+    df['AQI_CO'] = pd.cut(df.CO, 
+                            bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                            labels = ['Good', 'Moderate', 
+                                      'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                      "Very Unhealthy", 'Hazardous'])
+    
+    CO_24hr = df.groupby('dates', as_index=False)['CO'].mean()
+    CO_24hr = CO_24hr.rename(columns={'CO':'CO_24hr'})
+    df = df.merge(CO_24hr, on = 'dates', how ='left')
+    df['AQI_CO_24hr'] = pd.cut(df.CO_24hr, 
+                                bins = [-1,4.5,9.5,12.5,15.5,30.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    
+    df['AQI_pm2_5'] = pd.cut(df.Pm2_5, 
+                                bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    pm_25_24hr = df.groupby('dates', as_index=False)['Pm2_5'].mean()
+    pm_25_24hr = pm_25_24hr.rename(columns={'Pm2_5':'Pm_25_24hr'})
+    df = df.merge(pm_25_24hr, on = 'dates', how ='left')
+    df['AQI_pm_25_24hr'] = pd.cut(df.Pm_25_24hr, 
+                                bins = [-1,12.1,35.5,55.5,150.5,250.5,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    
+    df['AQI_pm10'] = pd.cut(df.Pm10, 
+                                bins = [-1,55,154,255,355,425,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    pm_10_24hr = df.groupby('dates', as_index=False)['Pm10'].mean()
+    pm_10_24hr = pm_10_24hr.rename(columns={'Pm10':'Pm_10_24hr'})
+    df = df.merge(pm_10_24hr, on = 'dates', how ='left')
+    df['AQI_pm10_24hr'] = pd.cut(df.Pm_10_24hr, 
+                                bins = [-1,55,154,255,355,425,4000],
+                                labels = ['Good', 'Moderate', 
+                                          'Unhealthy for Sensitive Groups', "Unhealthy", 
+                                          "Very Unhealthy", 'Hazardous'])
+    # create new unhealthy alert system
+    def df_alert(c):
+        if c['Pm2_5'] > 55.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 254.9:
+            return 'Pm10'
+        elif c['CO'] > 12.4:
+            return 'CO'
+        else:
+            return 'No Alert'
+    df['unhealthy_alert'] = df.apply(df_alert, axis=1)
+    # create new sensitive alert system
+    def sensitive_df_alert(c):
+        if c['Pm2_5'] > 34.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 154.9:
+            return 'Pm10'
+        elif c['CO'] > 9.4:
+            return 'CO'
+        else:
+            return 'No Alert'
+    df['sensitive_alert'] = df.apply(sensitive_df_alert, axis=1)
+    # create unhealthy HYPOTHTICAL Alert system
+        # hypothetical alerts are based on IF everything is reading in PPM
+    def hypo_df_alert(c):
+        if c['Pm2_5'] > 55.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 254.9:
+            return 'Pm10'
+        elif c['CO'] > 12.4:
+            return 'CO'
+        elif c['SO2'] > 0.1859:
+            return 'SO2'
+        elif c['O3'] > 0.1649:
+            return 'O3'
+        elif c['NO2'] > 0.3609:
+            return 'NO2'
+        else:
+            return 'No Alert'
+    df['hypothetical_unhealthy_alert'] = df.apply(hypo_df_alert, axis=1)
+    # create sensitive HYPOTHTICAL Alert system
+        # hypothetical alerts are based on IF everything is reading in PPM
+    def sensitive_df_alert(c):
+        if c['Pm2_5'] > 34.4:
+            return 'Pm2_5'
+        elif c['Pm10'] > 154.9:
+            return 'Pm10'
+        elif c['CO'] > 9.4:
+            return 'CO'
+        elif c['SO2'] > 0.0759:
+            return 'SO2'
+        elif c['O3'] > 0.124:
+            return 'O3'
+        elif c['NO2'] > 0.1009:
+            return 'NO2'
+        else:
+            return 'No Alert'
+
+    df['hypothetical_sensitive_alert'] = df.apply(sensitive_df_alert, axis=1)
+    # return new df
+    return df
+
+#-----------------------------------------------------------------------------
+# Sound Cleaning
+def wrangle_sound(df):
+    '''
+    This function drops unnecessary columns and
+    converts the 'DateTime' column to a datetime 
+    object
+    '''
+    # Drops unnecessary columns
+    df = df.drop(columns = ['SensorStatus', 'LONG', 'LAT'])
+    # Converts to datetime
+    df['DateTime'] = pd.to_datetime(df.DateTime)
+    # make noise level feature
+    df['how_loud'] = pd.cut(df.NoiseLevel_db, 
+                                bins = [-1,46,66,81,101,4000],
+                                labels = ['Normal', 'Moderate', 
+                                          'Loud', "Very Loud", 
+                                          "Extremely Loud"])
+    df = df.rename(columns={"DateTime": "datetime",
+                              "AlertTriggered": "alert_triggered",
+                              "Sensor_id": "sensor_id",
+                              "Vendor": "vendor",
+                              "SensorModel": "sensor_model"})
+    def sound_alert(c):
+        if c['NoiseLevel_db'] > 80:
+            return 'Minor Risk'
+        elif c['NoiseLevel_db'] > 120:
+            return 'Major Risk'
+        else:
+            return 'No Alert'
+    df['sound_alert'] = df.apply(sound_alert, axis=1)
+    return df
+
+
+#-----------------------------------------------------------------------------
+
+# Weather Cleaning
+
+def wrangle_weather(df):
+    '''
+    This function will drop unneccessary columns, 
+    change datetime to a pandas datetime datatype,
+    and rename columns to be more readable to return
+    a clean dataframe.  
+    '''
+    #change datetime to pandas datetime object
+    df.datetime = pd.to_datetime(df.datetime)
+    # round to hour
+    df['DateTime'] = df['datetime'].dt.round('60min')
+    # set index
+    df = df.set_index('DateTime')
+    # drop old columns
+    df = df.drop(columns=['Temp_C', 'DewPoint_C', 'SensorStatus'])
+    # rename
+    df = df.rename(columns={
+                            "DateTime": "datetime", 
+                            "Weather": "weather", 
+                            "Wind": "wind",
+                            "Visibility": "visibility",
+                            "LAT": "latitude",
+                            "LONG": "longitude",
+                            "SensorModel": "sensor_model",
+                            "Vendor": "vendor",
+                            "Zone": "pilot_zone",
+                            "DewPoint_F": "dewpoint_f",
+                            "Pressure_Pa": "pressure_pa")
+
+    # repalce -999
+    df = df.replace(to_replace=-999, value=0)
+    # drop nulls
+    df.dropna(inplace = True)
+    # adjust wind and visibility to be int
+    df['wind'] = df.wind.replace(to_replace=" NULL",value=0)
+    df['wind'] = df['wind'].str.extract('(\d+)', expand=False)
+    df['visibility'] = df['visibility'].str.extract('(\d+)', expand=False)
+    df["wind"].fillna(0, inplace = True)
+    df['wind'] = df['wind'].astype(int)
+    df['visibility'] = df['visibility'].astype(int)
+    #return clean weather df
+    return df

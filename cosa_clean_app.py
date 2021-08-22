@@ -41,7 +41,7 @@ def csv_downloader(df):
 # Web App Title
 st.markdown('''
 # **Clean COSA Data App**
-The **Clean COSA Data App** will take in SMARTSA Street Light Sensor csv and wrangle it into a form that can be easily explored for data analysis!
+The **Clean COSA Data App** will take in SMARTSA Street Light Sensor csv's and wrangle it into a form that can be easily explored for data analysis!
 You can access the open source datasets here:  ''')
 
 #-----------------------------------------------------------------------------
@@ -63,13 +63,32 @@ if uploaded_csv is not None:
     st.dataframe(df)
 #Which dataset was uploaded?
     def which_dataset():
+        #flood
         if uploaded_csv.name == 'c0c546cd-fbfa-479c-b1ca-ac7a7244aa53.csv' or uploaded_csv.name == '346d33b7-0b74-4b92-aa22-452456954ed1.csv' or uploaded_csv.name == 'aaf0e6a5-8df7-4f0c-bf22-7b2f6ad6943d.csv':
             clean = cf.clean_flood(df)
             st.header('**Squeaky clean!**')
             st.dataframe(clean)
             csv_downloader(clean)
+        #air
+        elif uploaded_csv.name == '81661d35-a5c5-40d1-af16-92edd3946579.csv' or uploaded_csv.name == '12ebf68f-95b0-4d96-9a1b-9c4f4e25497e.csv' or uploaded_csv.name == '0f16d9bc-fdf4-45fb-8198-dab84dc67ad7.csv':
+            clean = cf.clean_air(df)
+            st.header('**Squeaky clean!**')
+            st.dataframe(clean)
+            csv_downloader(clean)
+        #sound
+        elif  uploaded_csv == '3cc6c00e-0874-423f-ac81-de6081c1b532.csv' or uploaded_csv.name == 'f21099d0-22d7-43e7-bf06-3dac304b6765.csv' or uploaded_csv.name == '31f8a3f4-bc73-48c4-96bf-768388129f85.csv':
+            clean = cf.wrangle_sound(df)
+            st.header('**Squeaky clean!**')
+            st.dataframe(clean)
+            csv_downloader(clean)
+        #weather
+        elif uploaded_csv == '4dc78055-6ca6-4ce8-8a36-4c22804f6a9b.csv' or uploaded_csv.name == 'f6038372-b38f-42bb-8cf5-5d6419a46cf1.csv' or uploaded_csv.name == '7c2649a6-bb5a-4579-ab86-fbaee4e7024a.csv':
+            clean = cf.wrangle_weather(df)
+            st.header('**Squeaky clean!**')
+            st.dataframe(clean)
+            csv_downloader(clean)
         else:
-            st.text('Upload COSA Streetlight Dataset or SAWS dataset silly')
+            st.text('Upload COSA Streetlight dataset silly')
 #---------------------------------
     which_dataset()
 else:
