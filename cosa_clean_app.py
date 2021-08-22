@@ -45,12 +45,12 @@ The **Clean COSA Data App** will take in SMARTSA Street Light Sensor csv's and w
 You can access the open source datasets here:  [Streetlight Datasets](https://data.sanantonio.gov/dataset/street-light-sensor-data)''')
 # How to use
 st.markdown('''
-# *** How to Use:
-*** 8/22/21:  Currently experiencing some issues with caching the bigger datasets, so right now only flood type datasets can be cleaned until further notice :)
-1.  Pick a SMARTSA Street Light dataset
-2.  Download that dataset, but don't rename the downloaded csv just yet!
-3.  Upload the csv to the app
-4.  Observe the changes and download the clean data by clicking "download file"''')
+# *** How to Use: ***
+* 8/22/21:  Currently experiencing some issues with caching the bigger datasets, so right now only flood type datasets can be cleaned until further notice :)
+\n 1.  Pick a SMARTSA Street Light dataset
+\n 2.  Download that dataset, but don't rename the downloaded csv just yet!
+\n 3.  Upload the csv to the app
+\n 4.  Observe the changes and download the clean data by clicking "download file"''')
 
 #-----------------------------------------------------------------------------
 # Upload CSV data
