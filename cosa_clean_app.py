@@ -42,7 +42,7 @@ def csv_downloader(df):
 st.markdown('''
 # **Clean COSA Data App**
 The **Clean COSA Data App** will take in SMARTSA Street Light Sensor csv's and wrangle it into a form that can be easily explored for data analysis!
-You can access the open source datasets here:  ''')
+You can access the open source datasets here:  [Streetlight Datasets](https://data.sanantonio.gov/dataset/street-light-sensor-data)''')
 
 #-----------------------------------------------------------------------------
 # Upload CSV data
