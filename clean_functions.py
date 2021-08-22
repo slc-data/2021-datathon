@@ -263,7 +263,7 @@ def wrangle_weather(df):
         "DewPoint_F": "dewpoint_f",
         "Pressure_Pa": "pressure_pa"})
 
-    # repalce -999
+    # replace -999
     df = df.replace(to_replace=-999, value=0)
     # drop nulls
     df.dropna(inplace = True)
