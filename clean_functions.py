@@ -254,7 +254,7 @@ def wrangle_weather(df):
     # rename
     df = df.rename(columns={
                             "DateTime": "datetime", 
-                            "Sensor_id": "sensor_id" 
+                            "Sensor_id": "sensor_id", 
                             "LAT": "latitude",
                             "LONG": "longitude",
                             "SensorModel": "sensor_model",
