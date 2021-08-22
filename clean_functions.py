@@ -253,15 +253,15 @@ def wrangle_weather(df):
     df = df.drop(columns=['Temp_C', 'DewPoint_C', 'SensorStatus'])
     # rename
     df = df.rename(columns={
-                            "DateTime": "datetime", 
-                            "Sensor_id": "sensor_id", 
-                            "LAT": "latitude",
-                            "LONG": "longitude",
-                            "SensorModel": "sensor_model",
-                            "Vendor": "vendor",
-                            "Zone": "pilot_zone",
-                            "DewPoint_F": "dewpoint_f",
-                            "Pressure_Pa": "pressure_pa"})
+        "DateTime": "datetime",
+        "Sensor_id": "sensor_id",
+        "LAT": "latitude",
+        "LONG": "longitude",
+        "SensorModel": "sensor_model",
+        "Vendor": "vendor",
+        "Zone": "pilot_zone",
+        "DewPoint_F": "dewpoint_f",
+        "Pressure_Pa": "pressure_pa"})
 
     # repalce -999
     df = df.replace(to_replace=-999, value=0)
