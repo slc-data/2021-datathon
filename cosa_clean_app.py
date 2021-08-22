@@ -34,7 +34,7 @@ def csv_downloader(df):
     b64 = base64.b64encode(csvfile.encode()).decode()
     new_filename = "new_text_file_{}_.csv".format(timestr)
     st.markdown("#### Download file ####")
-    href = f'<a href="df:file/csv;base64,{b64}" download="{new_filename}">Click Here!!!</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="{new_filename}">Click Here!!!</a>'
     st.markdown(href, unsafe_allow_html=True)
 
 
@@ -42,7 +42,7 @@ def csv_downloader(df):
 st.markdown('''
 # **Clean COSA Data App**
 The **Clean COSA Data App** will take in SMARTSA Street Light Sensor csv and wrangle it into a form that can be easily explored for data analysis!
-''')
+You can access the open source datasets here:  ''')
 
 #-----------------------------------------------------------------------------
 # Upload CSV data
