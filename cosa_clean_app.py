@@ -47,10 +47,11 @@ You can access the open source datasets here:  [Streetlight Datasets](https://da
 st.markdown('''
 # *** How to Use: ***
 * 8/22/21:  Currently experiencing some issues with caching the bigger datasets, so right now only flood type datasets can be cleaned until further notice :)
-\n 1.  Pick a SMARTSA Street Light dataset
+\n 1.  Pick a SMARTSA Street Light dataset.
 \n 2.  Download that dataset, but don't rename the downloaded csv just yet!
-\n 3.  Upload the csv to the app
-\n 4.  Observe the changes and download the clean data by clicking "download file"''')
+\n 3.  Upload the csv to the app.
+\n 4.  Observe the changes and download the clean data by clicking "download file".
+\n 5.  Take your clean dataset [here](https://share.streamlit.io/slc-data/2021-datathon/main/cosa_eda_app.py) for some quick exploratory data analysis! ''')
 
 #-----------------------------------------------------------------------------
 # Upload CSV data
