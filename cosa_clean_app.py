@@ -32,7 +32,7 @@ timestr = time.strftime("%Y%m%d-%H%M%S")
 def csv_downloader(df):
     csvfile = df.to_csv()
     b64 = base64.b64encode(csvfile.encode()).decode()
-    new_filename = "new_text_file_{}_.csv".format(timestr)
+    new_filename = "clean_cosa_{}_.csv".format(timestr)
     st.markdown("#### Download file ####")
     href = f'<a href="data:file/csv;base64,{b64}" download="{new_filename}">Click Here!!!</a>'
     st.markdown(href, unsafe_allow_html=True)
@@ -61,7 +61,7 @@ if uploaded_csv is not None:
 # Display unclean data
     st.header('**Checkout The Raw Data!**')
     st.dataframe(df)
-#Which dataset
+#Which dataset was uploaded?
     def which_dataset():
         if uploaded_csv.name == 'c0c546cd-fbfa-479c-b1ca-ac7a7244aa53.csv' or uploaded_csv.name == '346d33b7-0b74-4b92-aa22-452456954ed1.csv' or uploaded_csv.name == 'aaf0e6a5-8df7-4f0c-bf22-7b2f6ad6943d.csv':
             clean = cf.clean_flood(df)
@@ -69,7 +69,7 @@ if uploaded_csv is not None:
             st.dataframe(clean)
             csv_downloader(clean)
         else:
-            st.text('not flood')
+            st.text('Upload COSA Streetlight Dataset or SAWS dataset silly')
 #---------------------------------
     which_dataset()
 else:
