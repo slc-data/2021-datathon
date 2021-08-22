@@ -244,7 +244,7 @@ def wrangle_weather(df):
     a clean dataframe.  
     '''
     #change datetime to pandas datetime object
-    df.DateTime = pd.to_datetime(df.datetime)
+    df.DateTime = pd.to_datetime(df.DateTime)
     # round to hour
     df['DateTime'] = df['datetime'].dt.round('60min')
     # set index
