@@ -255,7 +255,6 @@ def wrangle_weather(df):
     df = df.rename(columns={
                             "DateTime": "datetime", 
                             "Weather": "weather", 
-                            "Wind": "wind",
                             "Visibility": "visibility",
                             "LAT": "latitude",
                             "LONG": "longitude",
@@ -270,11 +269,7 @@ def wrangle_weather(df):
     # drop nulls
     df.dropna(inplace = True)
     # adjust wind and visibility to be int
-    df['wind'] = df.wind.replace(to_replace=" NULL",value=0)
-    df['wind'] = df['wind'].str.extract('(\d+)', expand=False)
     df['visibility'] = df['visibility'].str.extract('(\d+)', expand=False)
-    df["wind"].fillna(0, inplace = True)
-    df['wind'] = df['wind'].astype(int)
     df['visibility'] = df['visibility'].astype(int)
     #return clean weather df
     return df
