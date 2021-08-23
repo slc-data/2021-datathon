@@ -46,7 +46,7 @@ You can access the open source datasets here:  [Streetlight Datasets](https://da
 # How to use
 st.markdown('''
 # *** How to Use: ***
-* 8/22/21:  Currently experiencing some issues with caching the bigger datasets, so right now only flood type datasets can be cleaned until further notice :)
+* 8/22/21:  Currently experiencing some issues with the bigger datasets, so right now only flood type datasets can be cleaned until further notice :)
 \n 1.  Pick a SMARTSA Street Light dataset.
 \n 2.  Download that dataset, but don't rename the downloaded csv just yet!
 \n 3.  Upload the csv to the app.
@@ -85,7 +85,7 @@ if uploaded_csv is not None:
             st.dataframe(clean)
             csv_downloader(clean)
         #sound
-        elif  uploaded_csv == '3cc6c00e-0874-423f-ac81-de6081c1b532.csv' or uploaded_csv.name == 'f21099d0-22d7-43e7-bf06-3dac304b6765.csv' or uploaded_csv.name == '31f8a3f4-bc73-48c4-96bf-768388129f85.csv':
+        elif  uploaded_csv.name == '3cc6c00e-0874-423f-ac81-de6081c1b532.csv' or uploaded_csv.name == 'f21099d0-22d7-43e7-bf06-3dac304b6765.csv' or uploaded_csv.name == '31f8a3f4-bc73-48c4-96bf-768388129f85.csv':
             clean = cf.wrangle_sound(df)
             st.header('**Squeaky clean!**')
             st.dataframe(clean)
