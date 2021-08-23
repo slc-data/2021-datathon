@@ -66,7 +66,7 @@ if uploaded_csv is not None:
     def load_csv():
         csv = pd.read_csv(uploaded_csv)
         return csv
-    df = load_csv()
+    df = load_csv().copy()
 # Display unclean data
     st.header('**Checkout The Raw Data!**')
     st.dataframe(df)
